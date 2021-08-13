@@ -1,7 +1,7 @@
 
 
 from limite.telaSistema import TelaSistema
-from abstractControlador import AbstractControlador
+from controle.abstractControlador import AbstractControlador
 
 
 class ControladorSistema(AbstractControlador):

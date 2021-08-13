@@ -2,4 +2,4 @@
 
 # Dúvidas para Professor:
 
-- métodos herdados de uma class pai são preenchidos automaticamente na class filha sem abstractMethod?
+# métodos herdados de uma class pai são preenchidos automaticamente na class filha sem abstractMethod?

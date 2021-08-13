@@ -1,6 +1,6 @@
 
 
-from abstractTela import AbstractTela
+from limite.abstractTela import AbstractTela
 
 
 class TelaSistema(AbstractTela):
