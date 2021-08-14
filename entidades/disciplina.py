@@ -1,6 +1,6 @@
 
 
-from professor import Professor
+from entidades.professor import Professor
 
 
 class Disciplina:
