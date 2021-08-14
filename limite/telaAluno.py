@@ -3,16 +3,16 @@
 from limite.abstractTela import AbstractTela
 
 
-class TelaProfessor(AbstractTela):
+class TelaAluno(AbstractTela):
     def mostra_opcoes(self):
-        print("=========== CADASTROS DE PROFESSORES ===========")
+        print("=========== CADASTROS DE ALUNOS ===========")
         while True:
             try:
                 print("Escolha a opção:")
-                print("1 - Listar Professores")
-                print("2 - Adicionar Professor")
-                print("3 - Alterar Professor")
-                print("4 - Excluir Professor")
+                print("1 - Listar Alunos")
+                print("2 - Adicionar Aluno")
+                print("3 - Alterar Aluno")
+                print("4 - Excluir Aluno")
                 print("0 - Retornar")
 
                 opcao = int(input())
@@ -29,27 +29,29 @@ class TelaProfessor(AbstractTela):
     def mostra_msg(self, msg: str) -> None:
         print(msg)
 
-    def pega_dados_professor(self):
+    def pega_dados_aluno(self):
         try:
+            matricula = str(input("Insira a matricula: "))
             nome = str(input("Insira o nome: "))
             idade = int(input("Insira a idade: "))
-            return {"nome": nome, "idade": idade}
+            return {"nome": nome, "idade": idade, "matricula": matricula}
         except TypeError:
             self.mostra_msg("Insira um valor válido!")
         except Exception:
             self.mostra_msg("Ocorreu um erro ao inserir informações")
 
-    def mostra_professor(self, dados_professor):
-        print("NOME: ", dados_professor["nome"])
-        print("IDADE: ", dados_professor["idade"])
+    def mostra_aluno(self, dados_aluno):
+        print("MATRÍCULA: ", dados_aluno["matricula"])
+        print("NOME: ", dados_aluno["nome"])
+        print("IDADE: ", dados_aluno["idade"])
         print("DISCIPLINAS:")
-        if len(dados_professor["disciplinas"]) == 0:
-            print("Professor não da aula em nenhuma disciplina")
+        if len(dados_aluno["disciplinas"]) == 0:
+            print("Aluno não matriculado em nenhuma disciplina")
         else:
-            for disciplina in dados_professor["disciplinas"]:
+            for disciplina in dados_aluno["disciplinas"]:
                 print(" NOME: ", disciplina["nome"])
         print("\n")
 
-    def seleciona_professor(self):
-        nome = input("Nome do professor que deseja selecionar: ")
-        return nome
+    def seleciona_aluno(self):
+        matricula = input("Matricula do aluno que deseja selecionar: ")
+        return matricula

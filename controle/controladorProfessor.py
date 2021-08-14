@@ -39,6 +39,10 @@ class ControladorProfessor(AbstractControlador):
 
         if professor is not None:
             novos_dados = self.__tela_professor.pega_dados_professor()
+            if(novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
+                self.__tela_aluno.mostra_msg(
+                    "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+                return None
             professor.nome = novos_dados["nome"]
             professor.idade = novos_dados["idade"]
             self.listar_professores()
@@ -51,6 +55,11 @@ class ControladorProfessor(AbstractControlador):
         nome = self.__tela_professor.seleciona_professor()
         professor = self.pega_professor_por_nome(nome)
         if professor is not None:
+            for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                if disciplina.professor is professor:
+                    self.__tela_professor.mostra_msg(
+                        "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo")
+                    return None
             self.__professores.remove(professor)
             self.listar_professores()
         else:
@@ -59,6 +68,10 @@ class ControladorProfessor(AbstractControlador):
 
     def inclui_professor(self):
         dados = self.__tela_professor.pega_dados_professor()
+        if(dados["idade"] > 150 or dados["idade"] < 0):
+            self.__tela_aluno.mostra_msg(
+                "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+            return None
         self.__professores.append(Professor(dados["nome"], dados["idade"], []))
 
     def listar_professores(self):

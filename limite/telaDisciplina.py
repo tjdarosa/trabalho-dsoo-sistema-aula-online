@@ -13,6 +13,8 @@ class TelaDisciplina(AbstractTela):
                 print("2 - Adicionar Disciplina")
                 print("3 - Alterar Disciplina")
                 print("4 - Excluir Disciplina")
+                print("5 - Adicionar Aluno à Disciplina")
+                print("6 - Excluir Aluno de Disciplina")
                 print("0 - Retornar")
 
                 opcao = int(input())
@@ -31,9 +33,14 @@ class TelaDisciplina(AbstractTela):
 
     def pega_dados_disciplina(self):
         print("------------- DADOS DISCIPLINA -------------")
-        nome = str(input("Insira o nome: "))
-        limite_alunos = str(input("Insira o limite de alunos: "))
-        return {"nome": nome, "limite_alunos": limite_alunos}
+        try:
+            nome = str(input("Insira o nome: "))
+            limite_alunos = int(input("Insira o limite de alunos: "))
+            return {"nome": nome, "limite_alunos": limite_alunos}
+        except TypeError:
+            self.mostra_msg("Insira um valor válido!")
+        except Exception:
+            self.mostra_msg("Ocorreu um erro ao inserir informações")
 
     def mostra_disciplina(self, dados_disciplina):
         print("NOME: ", dados_disciplina["nome"])
@@ -49,5 +56,5 @@ class TelaDisciplina(AbstractTela):
         print("\n")
 
     def seleciona_disciplina(self):
-        nome = input("Nome da disciplina que deseja selecionar: ")
+        nome = str(input("Nome da disciplina que deseja selecionar: "))
         return nome

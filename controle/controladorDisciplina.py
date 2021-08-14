@@ -12,6 +12,10 @@ class ControladorDisciplina(AbstractControlador):
         self.__disciplinas = []
         self.__tela_disciplina = TelaDisciplina()
 
+    @property
+    def disciplinas(self) -> list:
+        return self.__disciplinas
+
     def pega_disciplina_por_nome(self, nome: str):
         for disciplina in self.__disciplinas:
             if disciplina.nome == nome:
@@ -21,7 +25,7 @@ class ControladorDisciplina(AbstractControlador):
 
     def abre_tela(self):
         lista_opcoes = {0: self.retornar,
-                        1: self.listar_disciplinas, 2: self.inclui_disciplina, 3: self.altera_disciplina, 4: self.exclui_disciplina}
+                        1: self.listar_disciplinas, 2: self.inclui_disciplina, 3: self.altera_disciplina, 4: self.exclui_disciplina, 5: self.inclui_aluno, 6: self.exclui_aluno}
         while True:
             lista_opcoes[self.__tela_disciplina.mostra_opcoes()]()
 
@@ -95,3 +99,55 @@ class ControladorDisciplina(AbstractControlador):
                         {"matricula": aluno.matricula, "nome": aluno.nome})
                 self.__tela_disciplina.mostra_disciplina(
                     {"nome": disciplina.nome, "limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos})
+
+    def inclui_aluno(self):
+      # Seleciona Disciplina
+        self.listar_disciplinas()
+        nome = self.__tela_disciplina.seleciona_disciplina()
+        disciplina = self.pega_disciplina_por_nome(nome)
+        if(disciplina is None):
+            self.__tela_disciplina.mostra_msg(
+                "ATENÇÃO: Disciplina Inexistente")
+            return None
+        if len(disciplina.alunos) == disciplina.limite_alunos:
+            self.__tela_disciplina.mostra_msg(
+                "ATENÇÃO: Esta disciplina já atingiu seu limite de aluno máximo permitido ")
+            return None
+      # Seleciona Aluno
+        self.__controlador_sistema.controlador_aluno.listar_alunos()
+        matricula = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno()
+        aluno = self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(
+            matricula)
+        if(aluno is None):
+            self.__tela_disciplina.mostra_msg("ATENÇÃO: Aluno Inexistente")
+            return None
+        if aluno in disciplina.alunos:
+            self.__tela_disciplina.mostra_msg(
+                "ATENÇÃO: Aluno já matriculado nesta disciplina")
+            return None
+        disciplina.alunos.append(aluno)
+        aluno.disciplinas.append(disciplina)
+
+    def exclui_aluno(self):
+      # Seleciona Disciplina
+        self.listar_disciplinas()
+        nome = self.__tela_disciplina.seleciona_disciplina()
+        disciplina = self.pega_disciplina_por_nome(nome)
+        if(disciplina is None):
+            self.__tela_disciplina.mostra_msg(
+                "ATENÇÃO: Disciplina Inexistente")
+            return None
+      # Seleciona Aluno
+        self.__controlador_sistema.controlador_aluno.listar_alunos()
+        matricula = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno()
+        aluno = self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(
+            matricula)
+        if(aluno is None):
+            self.__tela_disciplina.mostra_msg("ATENÇÃO: Aluno Inexistente")
+            return None
+        if aluno in disciplina.alunos:
+            disciplina.alunos.remove(aluno)
+            aluno.disciplinas.remove(disciplina)
+        else:
+            self.__tela_disciplina.mostra_msg(
+                "ATENÇÃO: Aluno já não estava matriculado nesta disciplina")

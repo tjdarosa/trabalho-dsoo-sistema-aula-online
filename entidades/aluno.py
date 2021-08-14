@@ -1,6 +1,6 @@
 
-from pessoa import Pessoa
-from curso import Curso
+from entidades.pessoa import Pessoa
+from entidades.curso import Curso
 
 
 class Aluno(Pessoa):
