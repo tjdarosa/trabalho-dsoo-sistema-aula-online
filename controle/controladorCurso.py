@@ -1,11 +1,9 @@
 
 
-
 from entidades.curso import Curso
 from limite.telaCurso import TelaCurso
 from controle.abstractControlador import AbstractControlador
 from controle.controladorDisciplina import ControladorDisciplina
-
 
 
 class ControladorCurso(AbstractControlador):
@@ -17,8 +15,8 @@ class ControladorCurso(AbstractControlador):
     def abre_tela(self):
         lista_opcoes = {0: self.retornar,
                         1: self.listar_cursos,
-                        2: self.inclui_curso, 
-                        3: self.altera_curso, 
+                        2: self.inclui_curso,
+                        3: self.altera_curso,
                         4: self.exclui_curso}
         while True:
             lista_opcoes[self.__tela_curso.mostra_opcoes()]()
@@ -31,12 +29,15 @@ class ControladorCurso(AbstractControlador):
             self.__tela_curso.mostra_msg("Nenhum curso cadastrado")
         else:
             for curso in self.__cursos:
+<<<<<<< HEAD
                 print('Curso: ' + curso.nome)
+=======
+                print('Curso: ', curso.nome)
+>>>>>>> bf769b4f10c90c32ed238e5400393def0c3b1e18
                 for disciplina in curso.disciplinas:
                     print('Disciplinas:')
                     print(disciplina)
             print()
-
 
     def inclui_curso(self):
         if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina._ControladorDisciplina__disciplinas) == 0:
@@ -45,11 +46,19 @@ class ControladorCurso(AbstractControlador):
             dados = self.__tela_curso.pega_dados_curso()
             # Para cada disciplina pega do usuário, compara com as disciplinas existentes e dispara msg caso disciplina não exista.
             for disciplina in dados['disciplinas']:
+<<<<<<< HEAD
                 for disciplina_cadastrada in self.__controlador_sistema._ControladorSistema__controlador_disciplina._ControladorDisciplina__disciplinas:
                     if disciplina not in self.__controlador_sistema._ControladorSistema__controlador_disciplina._ControladorDisciplina__disciplinas[0].nome:
                         self.__tela_curso.mostra_msg('Disciplina ' + str(disciplina) + ' não existente.')
+=======
+                for disciplina_cadastrada in self.__controlador_disciplina._ControladorDisciplina__disciplinas:
+                    if disciplina not in self.__controlador_disciplina._ControladorDisciplina__disciplinas[0].nome:
+                        self.__tela_curso.mostra_msg(
+                            'Disciplina ' + str(disciplina) + ' não existente.')
+>>>>>>> bf769b4f10c90c32ed238e5400393def0c3b1e18
                     else:
-                        self.__cursos.append(Curso(dados['nome'], dados['disciplinas']))
+                        self.__cursos.append(
+                            Curso(dados['nome'], dados['disciplinas']))
 
     def altera_curso(self):
         self.listar_cursos()
@@ -63,7 +72,6 @@ class ControladorCurso(AbstractControlador):
             self.listar_cursos()
         else:
             self.__tela_curso.mostra_msg("ATENÇÃO: Curso inexistente")
-        
 
     def exclui_curso(self):
         nome = self.__tela_curso.seleciona_curso()
@@ -83,6 +91,3 @@ class ControladorCurso(AbstractControlador):
         for curso in self.__cursos:
             if curso.nome == nome_curso:
                 return curso
-
-
-

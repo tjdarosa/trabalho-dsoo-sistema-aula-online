@@ -14,14 +14,14 @@ class TelaAtividade(AbstractTela):
                 print("2 - Adicionar Atividade")
                 print("3 - Alterar Atividade")
                 print("4 - Excluir Atividade")
-                print("5 - Adicionar Entrega de Aluno a Atividade")
-                print("6 - Avaliar Atividade de Aluno")
-                print("7 - Excluir Atividade de Aluno")
+                print("5 - Adicionar Atividade de Aluno")
+                print("6 - Adicionar Entrega de Aluno a Atividade")
+                print("7 - Avaliar Atividade de Aluno")
 
                 print("0 - Retornar")
 
                 opcao = int(input())
-                if opcao < 0 or opcao > 6:
+                if opcao < 0 or opcao > 7:
                     raise Exception()
                 return opcao
             except TypeError:
@@ -49,11 +49,23 @@ class TelaAtividade(AbstractTela):
                 "Ocorreu um erro ao inserir informações, verifique novamente os dados inseridos")
 
     def pega_dados_atividade_aluno(self):
-        print("------------- DADOS ATIVIDADE ALUNO -------------")
         try:
             data_entrega = datetime.strptime(
-                str(input("Insira a Data de Entrega no formato dd/MM/yyyy: ")))
+                str(input("Insira a Data de Entrega no formato dd/MM/yyyy: ")), "%d/%m/%Y")
             return {"data_que_foi_entregue": data_entrega}
+        except TypeError:
+            self.mostra_msg("Insira um valor válido!")
+        except Exception:
+            self.mostra_msg("Ocorreu um erro ao inserir informações")
+
+    def pega_nota_atividade_aluno(self):
+        try:
+            nota = float(
+                input("Insira a Nota: "))
+            if(nota > 10 or nota < 0):
+                print("Insira valores entre 0 e 10")
+                return None
+            return {"nota": nota}
         except TypeError:
             self.mostra_msg("Insira um valor válido!")
         except Exception:
