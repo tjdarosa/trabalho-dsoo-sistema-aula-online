@@ -57,5 +57,5 @@ class TelaCurso(AbstractTela):
         return nome
 
     def mostra_msg(self, msg):
-        print(msg)        
+        print(msg)
     
