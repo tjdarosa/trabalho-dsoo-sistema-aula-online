@@ -38,6 +38,7 @@ class TelaGerarRelatorio(AbstractTela):
                 'Informe o curso que deseja obter relatório: ')
             if isinstance(curso_do_relatorio, str) == False:
                 raise TypeError
+            return curso_do_relatorio
         except TypeError:
             print('Informe um nome válido!')
             self.seleciona_curso_do_relatorio()
@@ -48,9 +49,10 @@ class TelaGerarRelatorio(AbstractTela):
     def seleciona_disciplina_do_relatorio(self):
         try:
             disciplina_do_relatorio = input(
-                'Informe o curso que deseja obter relatório: ')
+                'Informe o Nome da Disciplina que deseja obter relatório: ')
             if isinstance(disciplina_do_relatorio, str) == False:
                 raise TypeError
+            return disciplina_do_relatorio
         except TypeError:
             print('Informe um nome válido!')
             self.seleciona_disciplina_do_relatorio()
@@ -75,8 +77,23 @@ class TelaGerarRelatorio(AbstractTela):
     def mostra_relatorio_curso(self, dados_curso):
         print('NOME DO CURSO: ', dados_curso['nome'])
         print('DISCIPLINAS: ')
-        for disciplina in dados_curso['disciplinas']:
-            print(disciplina)
+        if(len(dados_curso["disciplinas"]) == 0):
+            print("Nenhuma disciplina criada neste Curso")
+        else:
+            for disciplina in dados_curso['disciplinas']:
+                print(disciplina)
+        print("PROFESSORES:")
+        if(len(dados_curso["professores"]) == 0):
+            print("Nenhum professor dando aula neste curso")
+        else:
+            for professor in dados_curso['professores']:
+                print(professor)
+        print("ALUNOS:")
+        if(len(dados_curso["alunos"]) == 0):
+            print("Nenhum aluno matriculado neste curso")
+        else:
+            for aluno in dados_curso['alunos']:
+                print(aluno)
 
     def mostra_relatorio_disciplina(self, dados_disciplina):
         print('NOME DA DISCIPLINA: ', dados_disciplina['nome'])
@@ -84,8 +101,19 @@ class TelaGerarRelatorio(AbstractTela):
         print('LIMITE DE ALUNOS DA DISCIPLINA: ',
               dados_disciplina['limite_alunos'])
         print('ALUNOS DA DISCIPLINA: ')
-        for aluno in dados_disciplina['alunos']:
-            print(aluno)
+        if(len(dados_disciplina["alunos"]) == 0):
+            print("Nenhum aluno matriculado nesta disciplina")
+        else:
+            for aluno in dados_disciplina['alunos']:
+                print(aluno)
+        print("ATIVIDADES DA DISCIPLINA:")
+        if(len(dados_disciplina["atividades"]) == 0):
+            print("Nenhuma atividade criada nesta disciplina")
+        else:
+            for atividade in dados_disciplina['atividades']:
+                print(" TITULO: "+atividade["titulo"])
+                print(" DESCRIÇÃO: "+atividade["descricao"])
+                print(" PRAZO: " + atividade["prazo"])
 
     def mostra_relatorio_aluno(self, dados_aluno):
         print('NOME DO ALUNO: ', dados_aluno['nome'])

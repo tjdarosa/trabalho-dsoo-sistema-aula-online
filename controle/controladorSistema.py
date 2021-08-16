@@ -18,8 +18,7 @@ class ControladorSistema(AbstractControlador):
         self.__controlador_disciplina = ControladorDisciplina(self)
         self.__controlador_atividade = ControladorAtividade(self)
         self.__controlador_professor = ControladorProfessor(self)
-        self.__controlador_curso = ControladorCurso(
-            self, self.__controlador_disciplina)
+        self.__controlador_curso = ControladorCurso(self)
         self.__controlador_gerar_relatorio = ControladorGerarRelatorio(self)
 
     @property
@@ -33,6 +32,10 @@ class ControladorSistema(AbstractControlador):
     @property
     def controlador_aluno(self) -> ControladorAluno:
         return self.__controlador_aluno
+
+    @property
+    def controlador_curso(self) -> ControladorCurso:
+        return self.__controlador_curso
 
     @property
     def controlador_atividade(self) -> ControladorAtividade:

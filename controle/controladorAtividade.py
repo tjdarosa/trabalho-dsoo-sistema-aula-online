@@ -18,6 +18,10 @@ class ControladorAtividade(AbstractControlador):
     def tela_atividade(self) -> TelaAtividade:
         return self.__tela_atividade
 
+    @property
+    def atividades(self) -> list:
+        return self.__atividades
+
     def pega_atividade_por_titulo(self, titulo: str):
         for atividade in self.__atividades:
             if atividade.titulo == titulo:
