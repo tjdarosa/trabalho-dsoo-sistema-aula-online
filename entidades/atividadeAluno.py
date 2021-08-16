@@ -1,6 +1,6 @@
 
 from datetime import date as Date
-from aluno import Aluno
+from entidades.aluno import Aluno
 
 
 class AtividadeAluno:
