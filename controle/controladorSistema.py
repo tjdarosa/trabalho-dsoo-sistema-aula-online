@@ -1,5 +1,6 @@
 
 
+from controle.controladorAtividade import ControladorAtividade
 from controle.controladorAluno import ControladorAluno
 from controle.controladorProfessor import ControladorProfessor
 from controle.controladorDisciplina import ControladorDisciplina
@@ -14,7 +15,7 @@ class ControladorSistema(AbstractControlador):
         self.__controlador_aluno = ControladorAluno(self)
         # self.__controlador_curso = ControladorCurso(self)
         self.__controlador_disciplina = ControladorDisciplina(self)
-        # self.__controlador_atividade = ControladorAtividade(self)
+        self.__controlador_atividade = ControladorAtividade(self)
         self.__controlador_professor = ControladorProfessor(self)
         # self.__controlador_gerar_relatorio = ControladorGerarRelatorio(self)
 
@@ -30,9 +31,16 @@ class ControladorSistema(AbstractControlador):
     def controlador_aluno(self) -> ControladorAluno:
         return self.__controlador_aluno
 
+    @property
+    def controlador_atividade(self) -> ControladorAtividade:
+        return self.__controlador_atividade
+
     def abre_tela(self) -> None:
-        lista_opcoes = {3: self.cadastra_disciplinas,
-                        0: self.encerra_sistema, 4: self.cadastra_professores, 5: self.cadastra_aluno}
+        lista_opcoes = {0: self.encerra_sistema,
+                        3: self.cadastra_disciplinas,
+                        4: self.cadastra_professores, 
+                        5: self.cadastra_aluno, 
+                        6: self.cadastra_atividade}
         while True:
             opcao_escolhida = self.__tela_sistema.mostra_opcoes()
             lista_opcoes[opcao_escolhida]()
@@ -48,6 +56,9 @@ class ControladorSistema(AbstractControlador):
 
     def cadastra_aluno(self):
         self.__controlador_aluno.abre_tela()
+
+    def cadastra_atividade(self):
+        self.__controlador_atividade.abre_tela()
 
     def encerra_sistema(self):
         exit(0)

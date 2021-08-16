@@ -16,6 +16,10 @@ class ControladorDisciplina(AbstractControlador):
     def disciplinas(self) -> list:
         return self.__disciplinas
 
+    @property
+    def tela_disciplina(self) -> TelaDisciplina:
+        return self.__tela_disciplina
+
     def pega_disciplina_por_nome(self, nome: str):
         for disciplina in self.__disciplinas:
             if disciplina.nome == nome:
@@ -76,7 +80,7 @@ class ControladorDisciplina(AbstractControlador):
         professor = self.pega_professor_pra_disciplina()
         if(professor is None):
             self.__tela_disciplina.mostra_msg(
-                "ATENÇÃO: Professor não identificado, nãofoi possível adicionar disciplina")
+                "ATENÇÃO: Professor não identificado, não foi possível adicionar disciplina")
             return None
         nova_disciplina = Disciplina(
             dados["nome"], [], professor, dados["limite_alunos"])
