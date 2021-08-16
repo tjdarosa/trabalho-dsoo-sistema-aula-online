@@ -17,6 +17,10 @@ class ControladorAluno(AbstractControlador):
     def tela_aluno(self) -> TelaAluno:
         return self.__tela_aluno
 
+    @property
+    def alunos(self) -> list:
+        return self.__alunos
+
     def pega_aluno_por_matricula(self, matricula: str):
         for aluno in self.__alunos:
             if aluno.matricula == matricula:

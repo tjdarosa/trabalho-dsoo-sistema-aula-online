@@ -18,8 +18,9 @@ class ControladorSistema(AbstractControlador):
         self.__controlador_disciplina = ControladorDisciplina(self)
         self.__controlador_atividade = ControladorAtividade(self)
         self.__controlador_professor = ControladorProfessor(self)
-        self.__controlador_curso = ControladorCurso(self, self.__controlador_disciplina)
-        #self.__controlador_gerar_relatorio = ControladorGerarRelatorio(self, self.__controlador_curso,self.__controlador_disciplina, self.__controlador_aluno)
+        self.__controlador_curso = ControladorCurso(
+            self, self.__controlador_disciplina)
+        self.__controlador_gerar_relatorio = ControladorGerarRelatorio(self)
 
     @property
     def controlador_disciplina(self) -> ControladorDisciplina:
@@ -39,10 +40,11 @@ class ControladorSistema(AbstractControlador):
 
     def abre_tela(self) -> None:
         lista_opcoes = {0: self.encerra_sistema,
+                        1: self.relatorios,
                         2: self.cadastra_curso,
                         3: self.cadastra_disciplinas,
-                        4: self.cadastra_professores, 
-                        5: self.cadastra_aluno, 
+                        4: self.cadastra_professores,
+                        5: self.cadastra_aluno,
                         6: self.cadastra_atividade}
         while True:
             opcao_escolhida = self.__tela_sistema.mostra_opcoes()
@@ -65,6 +67,9 @@ class ControladorSistema(AbstractControlador):
 
     def cadastra_curso(self):
         self.__controlador_curso.abre_tela()
+
+    def relatorios(self):
+        self.__controlador_gerar_relatorio.abre_tela()
 
     def encerra_sistema(self):
         exit(0)
