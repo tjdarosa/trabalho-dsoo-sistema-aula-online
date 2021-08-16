@@ -36,14 +36,14 @@ class ControladorCurso(AbstractControlador):
             print()
 
     def inclui_curso(self):
-        if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina._ControladorDisciplina__disciplinas) == 0:
+        if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
             self.__tela_curso.mostra_msg('Primeiro cadastre uma disciplina.')
         else:
             dados = self.__tela_curso.pega_dados_curso()
             # Para cada disciplina pega do usuário, compara com as disciplinas existentes e dispara msg caso disciplina não exista.
             for disciplina in dados['disciplinas']:
-                for disciplina_cadastrada in self.__controlador_disciplina._ControladorDisciplina__disciplinas:
-                    if disciplina not in self.__controlador_disciplina._ControladorDisciplina__disciplinas[0].nome:
+                for disciplina_cadastrada in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                    if disciplina not in self.__controlador_sistema.controlador_disciplina.disciplinas[0].nome:
                         self.__tela_curso.mostra_msg(
                             'Disciplina ' + str(disciplina) + ' não existente.')
                     else:

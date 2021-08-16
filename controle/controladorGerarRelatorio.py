@@ -1,6 +1,6 @@
 
 
-from entidades import professor
+from entidades import disciplina, professor
 from controle.abstractControlador import AbstractControlador
 from controle.controladorDisciplina import ControladorDisciplina
 from limite.telaGerarRelatorio import TelaGerarRelatorio
@@ -67,8 +67,12 @@ class ControladorGerarRelatorio(AbstractControlador):
         professores = []
         alunos = []
 
-        for disciplina in curso.disciplinas:
-            disciplinas.append(disciplina.nome)
+        for disciplina_str in curso.disciplinas:
+            disciplinas.append(disciplina_str)
+            disciplina = None
+            for disc in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                if disc.nome == disciplina_str:
+                    disciplina = disc
             if disciplina.professor not in professores:
                 professores.append(professor.nome)
             for aluno in disciplina.alunos:
