@@ -74,7 +74,7 @@ class ControladorGerarRelatorio(AbstractControlador):
                 if disc.nome == disciplina_str:
                     disciplina = disc
             if disciplina.professor not in professores:
-                professores.append(professor.nome)
+                professores.append(disciplina.professor.nome)
             for aluno in disciplina.alunos:
                 if aluno not in alunos:
                     alunos.append(aluno.matricula + " - " + aluno.nome)
