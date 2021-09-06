@@ -32,7 +32,7 @@ class ControladorGerarRelatorio(AbstractControlador):
         for dic in aluno.disciplinas:
             disciplinas.append(dic.nome)
         self.__tela_gerar_relatorio.mostra_relatorio_aluno(
-            {"nome": aluno.nome, "matricula": aluno.matricula, "idade": aluno.idade, "curso": "Sistemas de Informação", "disciplina": disciplinas})
+            {"nome": aluno.nome, "matricula": aluno.matricula, "idade": aluno.idade, "curso": aluno.curso.nome, "disciplina": disciplinas})
 
     def relatorio_disciplina(self):
         self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
