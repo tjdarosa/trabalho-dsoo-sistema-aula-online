@@ -28,21 +28,29 @@ class TelaCurso(AbstractTela):
                 continue
         
 
-    def pega_dados_curso(self) -> dict:
+    def pega_nome_qtd_disciplinas_curso(self) -> dict:
         try:
             nome = str(input("Insira o nome do curso: "))
-            disciplinas = []
-            count = 0
             numero_disciplinas = int(input('informe quantas disciplinas terá o curso:'))
             print()
             
-            while count < numero_disciplinas:
-                disciplina = str(input('Insira o nome da ' + str(count + 1) + 'a' + ' disciplina:'))
-                disciplinas.append(disciplina)
-                count += 1
-            return {'nome': nome, 'disciplinas': disciplinas}
+            return {'nome': nome, 'qtd_disciplinas': numero_disciplinas}
         except TypeError:
-            self.mostra_msg("Insira um valor ou nome válido!")
+            self.mostra_msg("Insira um nome ou valor válido!")
+        except Exception:
+            self.mostra_msg("Ocorreu um erro ao inserir informações")
+
+    def pega_disciplinas_curso(self, qtd_disciplinas) -> list:
+        try:
+            count = 0
+            disciplinas = []
+            while count < qtd_disciplinas:
+                    disciplina = str(input('Insira o nome da ' + str(count + 1) + 'a' + ' disciplina:'))
+                    disciplinas.append(disciplina)
+                    count += 1
+            return disciplinas
+        except TypeError:
+            self.mostra_msg("Insira um nome válido!")
         except Exception:
             self.mostra_msg("Ocorreu um erro ao inserir informações")
 
