@@ -73,11 +73,12 @@ class ControladorAluno(AbstractControlador):
                 "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
             return None
         self.__alunos.append(
-            Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso("Sistemas de Informação", []), ))
+            Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', []), ))
 
     def listar_alunos(self):
         if len(self.__alunos) == 0:
-            self.__tela_aluno.mostra_msg("Nenhum aluno cadastrado")
+            self.__tela_aluno.mostra_msg("Nenhum aluno cadastrado! \n")
+            return -1
         else:
             for aluno in self.__alunos:
                 disciplinas = []

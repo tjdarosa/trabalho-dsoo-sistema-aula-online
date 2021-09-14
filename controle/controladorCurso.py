@@ -26,7 +26,8 @@ class ControladorCurso(AbstractControlador):
 
     def listar_cursos(self):
         if len(self.__cursos) == 0:
-            self.__tela_curso.mostra_msg("Nenhum curso cadastrado")
+            self.__tela_curso.mostra_msg("Nenhum curso cadastrado! \n")
+            return -1
         else:
             for curso in self.__cursos:
                 print('Curso: ', curso.nome)
@@ -37,24 +38,41 @@ class ControladorCurso(AbstractControlador):
 
     def inclui_curso(self):
         if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
-            self.__tela_curso.mostra_msg('Primeiro cadastre uma disciplina.')
+            self.__tela_curso.mostra_msg('Primeiro cadastre uma disciplina. \n')
         else:
-            dados = self.__tela_curso.pega_dados_curso()
-            # Para cada disciplina pega do usuário, compara com as disciplinas existentes e dispara msg caso disciplina não exista.
-            for disciplina in dados['disciplinas']:
-                for disciplina_cadastrada in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                    if disciplina not in self.__controlador_sistema.controlador_disciplina.disciplinas[0].nome:
+            # seleciona nome do curso e quantidade de disciplinas que ele terá.
+            dados = self.__tela_curso.pega_nome_qtd_disciplinas_curso()
+            
+            # verifica se o nome do curso já existe
+            cursos_existentes = []
+            for curso in self.__cursos:
+                cursos_existentes.append(curso.nome)
+            if dados['nome'] in cursos_existentes:
+                self.__tela_curso.mostra_msg('Curso já existente! \n')
+            
+            else:
+                self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
+                disciplinas_curso = self.__tela_curso.pega_disciplinas_curso(dados['qtd_disciplinas'])
+                
+                # verifica se as disciplinas informadas existem
+                disciplinas_existentes = []
+                for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                    disciplinas_existentes.append(disciplina.nome)
+                for disciplina_recebida in disciplinas_curso:
+                    if disciplina_recebida not in disciplinas_existentes:
                         self.__tela_curso.mostra_msg(
-                            'Disciplina ' + str(disciplina) + ' não existente.')
+                            'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe! \n')
+                    
                     else:
-                        self.__cursos.append(
-                            Curso(dados['nome'], dados['disciplinas']))
+                        self.__cursos.append(Curso(dados['nome'], disciplinas_curso))
+                        self.__tela_curso.mostra_msg('Curso cadastrado! \n')
 
+                
     def altera_curso(self):
         self.listar_cursos()
         nome = self.__tela_curso.seleciona_curso()
         curso = self.pega_curso_por_nome(nome)
-
+  
         if curso is not None:
             novos_dados = self.__tela_curso.pega_dados_curso()
             curso.nome = novos_dados["nome"]
