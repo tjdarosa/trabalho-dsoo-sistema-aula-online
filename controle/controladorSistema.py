@@ -50,6 +50,7 @@ class ControladorSistema(AbstractControlador):
                         5: self.cadastra_aluno,
                         6: self.cadastra_atividade}
         while True:
+            self.__tela_sistema.open()
             opcao_escolhida = self.__tela_sistema.mostra_opcoes()
             lista_opcoes[opcao_escolhida]()
 
