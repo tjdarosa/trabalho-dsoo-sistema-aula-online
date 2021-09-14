@@ -16,6 +16,9 @@ class ControladorDisciplina(AbstractControlador):
     def disciplinas(self) -> list:
         return self.__disciplinas
 
+    def tem_disciplinas(self):
+        return len(self.__disciplinas) > 0
+
     @property
     def tela_disciplina(self) -> TelaDisciplina:
         return self.__tela_disciplina
