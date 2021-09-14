@@ -26,7 +26,8 @@ class ControladorCurso(AbstractControlador):
 
     def listar_cursos(self):
         if len(self.__cursos) == 0:
-            self.__tela_curso.mostra_msg("Nenhum curso cadastrado")
+            self.__tela_curso.mostra_msg("Nenhum curso cadastrado! \n")
+            return -1
         else:
             for curso in self.__cursos:
                 print('Curso: ', curso.nome)
@@ -39,22 +40,21 @@ class ControladorCurso(AbstractControlador):
         if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
             self.__tela_curso.mostra_msg('Primeiro cadastre uma disciplina.')
         else:
+            self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
             dados = self.__tela_curso.pega_dados_curso()
             # Para cada disciplina pega do usuário, compara com as disciplinas existentes e dispara msg caso disciplina não exista.
+            disciplinas_nomes = []
             for disciplina in dados['disciplinas']:
-                for disciplina_cadastrada in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                    if disciplina not in self.__controlador_sistema.controlador_disciplina.disciplinas[0].nome:
-                        self.__tela_curso.mostra_msg(
-                            'Disciplina ' + str(disciplina) + ' não existente.')
-                    else:
-                        self.__cursos.append(
-                            Curso(dados['nome'], dados['disciplinas']))
+                disciplinas_nomes.append(disciplina)
+            self.__cursos.append(Curso(dados['nome'], disciplinas_nomes))
+            self.__tela_curso.mostra_msg('Curso cadastrado!')
 
+                
     def altera_curso(self):
         self.listar_cursos()
         nome = self.__tela_curso.seleciona_curso()
         curso = self.pega_curso_por_nome(nome)
-
+  
         if curso is not None:
             novos_dados = self.__tela_curso.pega_dados_curso()
             curso.nome = novos_dados["nome"]

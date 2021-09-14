@@ -30,13 +30,14 @@ class TelaCurso(AbstractTela):
 
     def pega_dados_curso(self) -> dict:
         try:
-            nome = str(input("Insira o nome: "))
-            
+            nome = str(input("Insira o nome do curso: "))
             disciplinas = []
             count = 0
             numero_disciplinas = int(input('informe quantas disciplinas terá o curso:'))
+            print()
+            
             while count < numero_disciplinas:
-                disciplina = str(input('Insira o nome de uma disciplina:'))
+                disciplina = str(input('Insira o nome da ' + str(count + 1) + 'a' + ' disciplina:'))
                 disciplinas.append(disciplina)
                 count += 1
             return {'nome': nome, 'disciplinas': disciplinas}
