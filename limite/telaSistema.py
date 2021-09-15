@@ -12,7 +12,7 @@ class TelaSistema(AbstractTela):
 
     def init_componentes(self):
         sg.ChangeLookAndFeel("Reddit")
-        layout = [[sg.Text("Oloco meu")]]
+        layout = [[sg.Text("Oloco meu", size = (30, 1), font = ('Times', 25))]]
         self.__window = sg.Window(
             "Tela Inicial", default_element_size=(40, 1)).Layout(layout)
 
@@ -46,6 +46,6 @@ class TelaSistema(AbstractTela):
             except TypeError:
                 print("Insira um número válido")
                 continue
-            except Exception as error:
+            except Exception:
                 print("Insira um número de 1 à 6")
                 continue

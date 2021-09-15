@@ -37,8 +37,9 @@ class TelaCurso(AbstractTela):
             return {'nome': nome, 'qtd_disciplinas': numero_disciplinas}
         except TypeError:
             self.mostra_msg("Insira um nome ou valor válido!")
+            self.pega_nome_qtd_disciplinas_curso
         except Exception:
-            self.mostra_msg("Ocorreu um erro ao inserir informações")
+            self.pega_nome_qtd_disciplinas_curso
 
     def pega_disciplinas_curso(self, qtd_disciplinas) -> list:
         try:

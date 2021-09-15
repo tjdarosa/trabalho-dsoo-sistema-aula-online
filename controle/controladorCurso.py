@@ -27,7 +27,8 @@ class ControladorCurso(AbstractControlador):
     def listar_cursos(self):
         if len(self.__cursos) == 0:
             self.__tela_curso.mostra_msg("Nenhum curso cadastrado! \n")
-            return -1
+            # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+            return -1 
         else:
             for curso in self.__cursos:
                 print('Curso: ', curso.nome)
@@ -47,25 +48,34 @@ class ControladorCurso(AbstractControlador):
             cursos_existentes = []
             for curso in self.__cursos:
                 cursos_existentes.append(curso.nome)
-            if dados['nome'] in cursos_existentes:
+            if dados is None:
+                self.__tela_curso.mostra_msg('Houve um erro na inserção de informações! \n')
+            
+            elif dados['nome'] in cursos_existentes:
                 self.__tela_curso.mostra_msg('Curso já existente! \n')
             
             else:
                 self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
                 disciplinas_curso = self.__tela_curso.pega_disciplinas_curso(dados['qtd_disciplinas'])
+                if len(disciplinas_curso) != len(set(disciplinas_curso)):
+                    self.__tela_curso.mostra_msg('Existem disciplinas repetidas! Tente novamente. \n')
                 
-                # verifica se as disciplinas informadas existem
-                disciplinas_existentes = []
-                for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                    disciplinas_existentes.append(disciplina.nome)
-                for disciplina_recebida in disciplinas_curso:
-                    if disciplina_recebida not in disciplinas_existentes:
-                        self.__tela_curso.mostra_msg(
-                            'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe! \n')
-                    
-                    else:
-                        self.__cursos.append(Curso(dados['nome'], disciplinas_curso))
-                        self.__tela_curso.mostra_msg('Curso cadastrado! \n')
+                else:
+                    # verifica se as disciplinas informadas existem
+                    disciplinas_existentes = []
+                    disciplinas_validadas = []
+                    for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                        disciplinas_existentes.append(disciplina.nome)
+                    for disciplina_recebida in disciplinas_curso:
+                        if disciplina_recebida not in disciplinas_existentes:
+                            self.__tela_curso.mostra_msg(
+                                'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe! \n')
+                        if disciplina_recebida in disciplinas_existentes:
+                            disciplinas_validadas.append(disciplina_recebida)
+                            
+                        if len(disciplinas_curso) == len(disciplinas_validadas):
+                            self.__cursos.append(Curso(dados['nome'], disciplinas_curso))
+                            self.__tela_curso.mostra_msg('Curso cadastrado! \n')
 
                 
     def altera_curso(self):

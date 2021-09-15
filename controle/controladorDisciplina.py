@@ -98,6 +98,7 @@ class ControladorDisciplina(AbstractControlador):
     def listar_disciplinas(self):
         if len(self.__disciplinas) == 0:
             self.__tela_disciplina.mostra_msg("Nenhuma disciplina cadastrada! \n")
+            # return -1 é utilizado para evitar geração de relatórios caso não exsitam disciplinas cadastradas.
             return -1
         else:
             for disciplina in self.__disciplinas:

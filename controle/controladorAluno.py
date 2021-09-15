@@ -78,6 +78,7 @@ class ControladorAluno(AbstractControlador):
     def listar_alunos(self):
         if len(self.__alunos) == 0:
             self.__tela_aluno.mostra_msg("Nenhum aluno cadastrado! \n")
+            # return -1 é utilizado para evitar geração de relatórios caso não exsitam alunos cadastrados.
             return -1
         else:
             for aluno in self.__alunos:
