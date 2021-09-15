@@ -55,10 +55,10 @@ class TelaCurso(AbstractTela):
         except Exception:
             self.mostra_msg("Ocorreu um erro ao inserir informações")
 
-    def mostra_curso(self, dados_curso):
-        print("NOME: ", dados_curso["nome"])
-        print("DISCIPLINAS: ")
-        for disciplina in dados_curso['disciplinas']:
+    def mostra_curso(self, curso):
+        print("NOME:", curso.nome)
+        print("DISCIPLINAS:")
+        for disciplina in curso.disciplinas:
             print(disciplina)
         print("\n")
 

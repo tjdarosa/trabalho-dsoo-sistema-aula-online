@@ -31,11 +31,7 @@ class ControladorCurso(AbstractControlador):
             return -1 
         else:
             for curso in self.__cursos:
-                print('Curso: ', curso.nome)
-                for disciplina in curso.disciplinas:
-                    print('Disciplinas:')
-                    print(disciplina)
-            print()
+                self.__tela_curso.mostra_curso(curso)
 
     def inclui_curso(self):
         if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
@@ -44,24 +40,24 @@ class ControladorCurso(AbstractControlador):
             # seleciona nome do curso e quantidade de disciplinas que ele terá.
             dados = self.__tela_curso.pega_nome_qtd_disciplinas_curso()
             
-            # verifica se o nome do curso já existe
+            # verifica se os dados não são vazios e se o nome do curso já existe.
             cursos_existentes = []
             for curso in self.__cursos:
                 cursos_existentes.append(curso.nome)
             if dados is None:
                 self.__tela_curso.mostra_msg('Houve um erro na inserção de informações! \n')
-            
             elif dados['nome'] in cursos_existentes:
                 self.__tela_curso.mostra_msg('Curso já existente! \n')
             
             else:
                 self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
                 disciplinas_curso = self.__tela_curso.pega_disciplinas_curso(dados['qtd_disciplinas'])
+                # verifica se há disciplinas repetidas.
                 if len(disciplinas_curso) != len(set(disciplinas_curso)):
                     self.__tela_curso.mostra_msg('Existem disciplinas repetidas! Tente novamente. \n')
                 
                 else:
-                    # verifica se as disciplinas informadas existem
+                    # verifica se as disciplinas informadas existem.
                     disciplinas_existentes = []
                     disciplinas_validadas = []
                     for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
@@ -70,12 +66,12 @@ class ControladorCurso(AbstractControlador):
                         if disciplina_recebida not in disciplinas_existentes:
                             self.__tela_curso.mostra_msg(
                                 'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe! \n')
-                        if disciplina_recebida in disciplinas_existentes:
+                        elif disciplina_recebida in disciplinas_existentes:
                             disciplinas_validadas.append(disciplina_recebida)
                             
-                        if len(disciplinas_curso) == len(disciplinas_validadas):
-                            self.__cursos.append(Curso(dados['nome'], disciplinas_curso))
-                            self.__tela_curso.mostra_msg('Curso cadastrado! \n')
+                    if len(disciplinas_curso) == len(disciplinas_validadas):
+                        self.__cursos.append(Curso(dados['nome'], disciplinas_curso))
+                        self.__tela_curso.mostra_msg('Curso cadastrado! \n')
 
                 
     def altera_curso(self):
@@ -84,12 +80,45 @@ class ControladorCurso(AbstractControlador):
         curso = self.pega_curso_por_nome(nome)
   
         if curso is not None:
-            novos_dados = self.__tela_curso.pega_dados_curso()
-            curso.nome = novos_dados["nome"]
-            curso.disciplinas = novos_dados["disciplinas"]
-            self.listar_cursos()
+            # seleciona nome do curso e quantidade de disciplinas que ele terá.
+            novos_dados = self.__tela_curso.pega_nome_qtd_disciplinas_curso()
+            
+            # verifica se os novos dados não são vazios e se o nome do curso já existe.
+            cursos_existentes = []
+            for curso in self.__cursos:
+                cursos_existentes.append(curso.nome)
+            if novos_dados is None:
+                self.__tela_curso.mostra_msg('Houve um erro na inserção de informações! \n')
+            elif novos_dados['nome'] in cursos_existentes:
+                self.__tela_curso.mostra_msg('Curso já existente! \n')
+
+            else:
+                self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
+                disciplinas_curso = self.__tela_curso.pega_disciplinas_curso(novos_dados['qtd_disciplinas'])
+                
+                # verifica se há disciplinas repetidas.
+                if len(disciplinas_curso) != len(set(disciplinas_curso)):
+                    self.__tela_curso.mostra_msg('Existem disciplinas repetidas! Tente novamente. \n')
+                
+                else:
+                    # verifica se as disciplinas informadas existem.
+                    disciplinas_existentes = []
+                    disciplinas_validadas = []
+                    for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                        disciplinas_existentes.append(disciplina.nome)
+                    for disciplina_recebida in disciplinas_curso:
+                        if disciplina_recebida not in disciplinas_existentes:
+                            self.__tela_curso.mostra_msg(
+                                'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe!')
+                        elif disciplina_recebida in disciplinas_existentes:
+                            disciplinas_validadas.append(disciplina_recebida)
+
+                        if len(disciplinas_curso) == len(disciplinas_validadas):
+                            curso.nome = novos_dados["nome"]
+                            curso.disciplinas = disciplinas_curso
+                            self.__tela_curso.mostra_msg('Curso alterado! \n')
         else:
-            self.__tela_curso.mostra_msg("ATENÇÃO: Curso inexistente")
+            self.__tela_curso.mostra_msg("ATENÇÃO: Curso inexistente! \n")
 
     def exclui_curso(self):
         nome = self.__tela_curso.seleciona_curso()
