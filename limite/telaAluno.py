@@ -31,14 +31,14 @@ class TelaAluno(AbstractTela):
 
     def pega_dados_aluno(self):
         try:
-            matricula = str(input("Insira a matricula: "))
+            matricula = int(input("Insira a matricula: "))
             nome = str(input("Insira o nome: "))
             idade = int(input("Insira a idade: "))
             return {"nome": nome, "idade": idade, "matricula": matricula}
         except TypeError:
-            self.mostra_msg("Insira um valor válido!")
+            self.mostra_msg("Insira um valor válido!\n")
         except Exception:
-            self.mostra_msg("Ocorreu um erro ao inserir informações")
+            self.mostra_msg("Ocorreu um erro na inserção de informações!\n")
 
     def mostra_aluno(self, dados_aluno):
         print("MATRÍCULA: ", dados_aluno["matricula"])
@@ -53,5 +53,5 @@ class TelaAluno(AbstractTela):
         print("\n")
 
     def seleciona_aluno(self):
-        matricula = input("Matricula do aluno que deseja selecionar: ")
+        matricula = int(input("Matricula do aluno que deseja selecionar: "))
         return matricula

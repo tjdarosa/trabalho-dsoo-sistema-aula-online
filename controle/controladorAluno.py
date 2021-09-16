@@ -21,7 +21,7 @@ class ControladorAluno(AbstractControlador):
     def alunos(self) -> list:
         return self.__alunos
 
-    def pega_aluno_por_matricula(self, matricula: str):
+    def pega_aluno_por_matricula(self, matricula: int):
         for aluno in self.__alunos:
             if aluno.matricula == matricula:
                 return aluno
@@ -43,17 +43,31 @@ class ControladorAluno(AbstractControlador):
 
         if aluno is not None:
             novos_dados = self.__tela_aluno.pega_dados_aluno()
-            if(novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
-                self.__tela_aluno.mostra_msg(
-                    "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+            if novos_dados is not None:
+                if (novos_dados is None) or (not isinstance(novos_dados["idade"], int)) or (novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
+                    self.__tela_aluno.mostra_msg(
+                        "ATENÇÃO: Insira um valor numérico entre 0 e 150\n")
+                    return None
+
+                # verifica se a matricula já existe. 
+                matricula_repetida = False
+                if len(self.__alunos) > 0:
+                    for aluno in self.__alunos:
+                        if novos_dados['matricula'] == aluno.matricula:
+                            self.__tela_aluno.mostra_msg('Esta matrícula já está sendo utilizada!\n')
+                            matricula_repetida = True
+                            break
+                  
+                if not matricula_repetida:           
+                    aluno.nome = novos_dados["nome"]
+                    aluno.matricula = novos_dados["matricula"]
+                    aluno.idade = novos_dados["idade"]
+                    self.__tela_aluno.mostra_msg('Cadastro do aluno alterado!\n')
+            else:
                 return None
-            aluno.nome = novos_dados["nome"]
-            aluno.matricula = novos_dados["matricula"]
-            aluno.idade = novos_dados["idade"]
-            self.listar_alunos()
         else:
             self.__tela_aluno.mostra_msg(
-                "ATENÇÃO: Aluno inexistente")
+                "ATENÇÃO: Aluno inexistente!\n")
 
     def exclui_aluno(self):
         self.listar_alunos()
@@ -61,19 +75,34 @@ class ControladorAluno(AbstractControlador):
         aluno = self.pega_aluno_por_matricula(matricula)
         if aluno is not None:
             self.__alunos.remove(aluno)
-            self.listar_alunos()
+            self.__tela_aluno.mostra_msg('Aluno de matrícula "{}" foi excluído!\n'.format(matricula))
         else:
             self.__tela_aluno.mostra_msg(
                 "ATENÇÃO: Aluno inexistente")
 
     def inclui_aluno(self):
         dados = self.__tela_aluno.pega_dados_aluno()
-        if(dados["idade"] > 150 or dados["idade"] < 0):
-            self.__tela_aluno.mostra_msg(
-                "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+        if dados is not None:
+            if (not isinstance(dados["idade"], int)) or (dados["idade"] > 150 or dados["idade"] < 0):
+                self.__tela_aluno.mostra_msg(
+                    "ATENÇÃO: Insira um valor numérico entre 0 e 150!\n")
+                return None
+            
+            # verifica se a matricula já existe.
+            matricula_repetida = False
+            if len(self.__alunos) > 0:
+                for aluno in self.__alunos:
+                    if dados['matricula'] == aluno.matricula:
+                        self.__tela_aluno.mostra_msg('Esta matrícula já está sendo utilizada!\n')
+                        matricula_repetida = True
+                        break
+                    
+            if not matricula_repetida:
+                self.__alunos.append(
+                    Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', []), ))
+                self.__tela_aluno.mostra_msg('Aluno adicionado!\n')
+        else:
             return None
-        self.__alunos.append(
-            Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', []), ))
 
     def listar_alunos(self):
         if len(self.__alunos) == 0:
