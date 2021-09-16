@@ -185,8 +185,8 @@ class ControladorAtividade(AbstractControlador):
 
     def pega_professor_pra_atividade(self):
         self.__controlador_sistema.controlador_professor.listar_professores()
-        nome = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
-        return self.__controlador_sistema.controlador_professor.pega_professor_por_nome(nome)
+        id = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
+        return self.__controlador_sistema.controlador_professor.pega_professor_por_id(id)
 
     def pega_aluno_pra_atividade_aluno(self):
         self.__controlador_sistema.controlador_aluno.listar_alunos()

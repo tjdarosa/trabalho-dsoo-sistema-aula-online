@@ -50,23 +50,23 @@ class ControladorAluno(AbstractControlador):
                     self.__tela_aluno.mostra_msg(
                         "ATENÇÃO: Insira um valor numérico entre 0 e 150\n")
                     return None
+                else:
+                    # verifica se a matricula já existe.
+                    matricula_repetida = False
+                    if len(self.__alunos) > 0:
+                        for aluno in self.__alunos:
+                            if novos_dados['matricula'] == aluno.matricula:
+                                self.__tela_aluno.mostra_msg(
+                                    'Esta matrícula já está sendo utilizada!\n')
+                                matricula_repetida = True
+                                break
 
-                # verifica se a matricula já existe.
-                matricula_repetida = False
-                if len(self.__alunos) > 0:
-                    for aluno in self.__alunos:
-                        if novos_dados['matricula'] == aluno.matricula:
-                            self.__tela_aluno.mostra_msg(
-                                'Esta matrícula já está sendo utilizada!\n')
-                            matricula_repetida = True
-                            break
-
-                if not matricula_repetida:
-                    aluno.nome = novos_dados["nome"]
-                    aluno.matricula = novos_dados["matricula"]
-                    aluno.idade = novos_dados["idade"]
-                    self.__tela_aluno.mostra_msg(
-                        'Cadastro do aluno alterado!\n')
+                    if not matricula_repetida:
+                        aluno.nome = novos_dados["nome"]
+                        aluno.matricula = novos_dados["matricula"]
+                        aluno.idade = novos_dados["idade"]
+                        self.__tela_aluno.mostra_msg(
+                            'Cadastro do aluno alterado!\n')
             else:
                 return None
         else:
@@ -111,6 +111,22 @@ class ControladorAluno(AbstractControlador):
                 self.__alunos.append(
                     Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', []), ))
                 self.__tela_aluno.mostra_msg('Aluno adicionado!\n')
+            else:
+                # verifica se a matricula já existe.
+                matricula_repetida = False
+                if len(self.__alunos) > 0:
+                    for aluno in self.__alunos:
+                        if dados['matricula'] == aluno.matricula:
+                            self.__tela_aluno.mostra_msg(
+                                'Esta matrícula já está sendo utilizada!\n')
+                            matricula_repetida = True
+                            break
+
+                if not matricula_repetida:
+                    self.__alunos.append(
+                        Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', []), ))
+                    self.__tela_aluno.mostra_msg('Aluno adicionado!\n')
+
         else:
             return None
 

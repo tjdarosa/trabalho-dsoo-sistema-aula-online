@@ -26,18 +26,16 @@ class TelaGerarRelatorio(AbstractTela):
                     raise Exception
                 return opcao
             except TypeError:
-                print('Insira um numero válido.')
+                print('Insira um número válido!\n')
                 continue
             except Exception:
-                print('Insira um valor numérico entre 0 e 3.')
+                print('Insira um valor numérico entre 0 e 3!\n.')
                 continue
 
     def seleciona_curso_do_relatorio(self):
         try:
-            curso_do_relatorio = input(
-                'Informe o curso que deseja obter relatório: ')
-            if isinstance(curso_do_relatorio, str) == False:
-                raise TypeError
+            curso_do_relatorio = str(input(
+                'Informe o curso que deseja obter relatório: '))
             return curso_do_relatorio
         except TypeError:
             print('Informe um nome válido!')
@@ -48,10 +46,8 @@ class TelaGerarRelatorio(AbstractTela):
 
     def seleciona_disciplina_do_relatorio(self):
         try:
-            disciplina_do_relatorio = input(
-                'Informe o Nome da Disciplina que deseja obter relatório: ')
-            if isinstance(disciplina_do_relatorio, str) == False:
-                raise TypeError
+            disciplina_do_relatorio = str(input(
+                'Informe o Nome da Disciplina que deseja obter relatório: '))
             return disciplina_do_relatorio
         except TypeError:
             print('Informe um nome válido!')
@@ -62,13 +58,11 @@ class TelaGerarRelatorio(AbstractTela):
 
     def seleciona_aluno_do_relatorio(self):
         try:
-            aluno_do_relatorio = input(
-                'Informe a matricula do Aluno que deseja obter relatório: ')
-            if isinstance(aluno_do_relatorio, str) == False:
-                raise TypeError
-            return aluno_do_relatorio
+            matr_aluno_do_relatorio = int(input(
+                'Informe a matricula do Aluno que deseja obter relatório: '))
+            return matr_aluno_do_relatorio
         except TypeError:
-            print('Informe um nome válido!')
+            print('Informe uma matrícula válida!')
             self.seleciona_aluno_do_relatorio()
         except Exception:
             print('Houve um problema ao informar o aluno.')
@@ -78,19 +72,19 @@ class TelaGerarRelatorio(AbstractTela):
         print('NOME DO CURSO: ', dados_curso['nome'])
         print('DISCIPLINAS: ')
         if(len(dados_curso["disciplinas"]) == 0):
-            print("Nenhuma disciplina criada neste Curso")
+            print("Nenhuma disciplina ligada a este Curso.\n")
         else:
             for disciplina in dados_curso['disciplinas']:
                 print(disciplina)
         print("PROFESSORES:")
         if(len(dados_curso["professores"]) == 0):
-            print("Nenhum professor dando aula neste curso")
+            print("Nenhum professor dando aula neste curso.\n")
         else:
             for professor in dados_curso['professores']:
                 print(professor)
         print("ALUNOS:")
         if(len(dados_curso["alunos"]) == 0):
-            print("Nenhum aluno matriculado neste curso")
+            print("Nenhum aluno matriculado neste curso.\n")
         else:
             for aluno in dados_curso['alunos']:
                 print(aluno)

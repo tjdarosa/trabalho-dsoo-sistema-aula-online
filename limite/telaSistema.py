@@ -54,8 +54,8 @@ class TelaSistema(AbstractTela):
                     raise Exception()
                 return opcao
             except TypeError:
-                print("Insira um número válido")
+                print("Insira um número válido!\n")
                 continue
             except Exception:
-                print("Insira um número de 1 à 6")
+                print("Insira um número de 0 à 6!\n")
                 continue

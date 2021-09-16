@@ -46,12 +46,16 @@ class TelaProfessor(AbstractTela):
         print("IDADE: ", dados_professor["idade"])
         print("DISCIPLINAS:")
         if len(dados_professor["disciplinas"]) == 0:
-            print("Professor não dá aula em nenhuma disciplina.")
+            print("Professor não dá aula em nenhuma disciplina.\n")
         else:
             for disciplina in dados_professor["disciplinas"]:
                 print(" NOME: ", disciplina["nome"])
         print("\n")
 
     def seleciona_professor(self):
-        id = int(input("Id do professor que deseja selecionar: "))
-        return id
+        try:
+            id = int(input("Id do professor que deseja selecionar: "))
+            return id
+        except Exception:
+            self.mostra_msg('houve um erro na inserção de informações!\n')
+        

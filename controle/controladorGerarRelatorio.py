@@ -32,7 +32,11 @@ class ControladorGerarRelatorio(AbstractControlador):
             for dic in aluno.disciplinas:
                 disciplinas.append(dic.nome)
             self.__tela_gerar_relatorio.mostra_relatorio_aluno(
-                {"nome": aluno.nome, "matricula": aluno.matricula, "idade": aluno.idade, "curso": aluno.curso.nome, "disciplina": disciplinas})
+                {"nome": aluno.nome,
+                "matricula": aluno.matricula,
+                "idade": aluno.idade,
+                "curso": aluno.curso.nome,
+                "disciplina": disciplinas})
 
     def relatorio_disciplina(self):
         if self.__controlador_sistema.controlador_disciplina.listar_disciplinas() != -1:
@@ -46,7 +50,7 @@ class ControladorGerarRelatorio(AbstractControlador):
 
             alunos = []
             for aluno in disciplina.alunos:
-                alunos.append(aluno.matricula + " - " + aluno.nome)
+                alunos.append('{}'.format(aluno.matricula) + " - " + '{}'.format(aluno.nome))
             atividades = []
             for atividade in self.__controlador_sistema.controlador_atividade.atividades:
                 if atividade.disciplina == disciplina:
@@ -79,7 +83,7 @@ class ControladorGerarRelatorio(AbstractControlador):
                         professores.append(disciplina.professor.nome)
                     for aluno in disciplina.alunos:
                         if aluno not in alunos:
-                            alunos.append(aluno.matricula + " - " + aluno.nome)
+                            alunos.append('{}'.format(aluno.matricula) + " - " + '{}'.format(aluno.nome))
 
                 self.__tela_gerar_relatorio.mostra_relatorio_curso(
                     {"nome": curso.nome, "disciplinas": disciplinas, "alunos": alunos, "professores": professores})
