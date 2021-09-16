@@ -1,9 +1,49 @@
 
 
 from limite.abstractTela import AbstractTela
+import PySimpleGUI as sg
 
 
 class TelaAluno(AbstractTela):
+
+    def __init__(self) -> None:
+        self.__window = None
+        self.init_componentes()
+
+    def init_componentes(self):
+        layout = [
+            [sg.Text("Alunos",
+                     size=(30, 1), font=('Times', 25))],
+            [sg.Button("Listar Alunos")],
+            [sg.Button("Adicionar Aluno")],
+            [sg.Button("Alterar Aluno")],
+            [sg.Button("Excluir Aluno")],
+            [sg.Button("Retornar")],
+        ]
+        self.__window = sg.Window(
+            "Cadastros de Alunos", default_element_size=(50, 1)).Layout(layout)
+
+    def init_inclui_aluno(self):
+        layout = [
+            [sg.Text("Incluir Aluno",
+                     size=(30, 1), font=('Times', 25))],
+            [sg.Text("Matricula"), sg.InputText('matricula')],
+            [sg.Text("Nome"), sg.InputText('nome')],
+            [sg.Text("Idade"), sg.InputText('idade')],
+        ]
+        self.__window = sg.Window(
+            "incluir Aluno", default_element_size=(50, 1)).Layout(layout)
+
+    def open(self):
+        button, values = self.__window.Read()
+        return button, values
+
+    def close(self):
+        self.__window.Close()
+
+    def showMessage(self, titulo: str, mensagem: str):
+        sg.Popup(titulo, mensagem)
+
     def mostra_opcoes(self):
         print("=========== CADASTROS DE ALUNOS ===========")
         while True:
