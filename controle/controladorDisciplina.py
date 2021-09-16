@@ -92,8 +92,8 @@ class ControladorDisciplina(AbstractControlador):
 
     def pega_professor_pra_disciplina(self):
         self.__controlador_sistema.controlador_professor.listar_professores()
-        nome = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
-        return self.__controlador_sistema.controlador_professor.pega_professor_por_nome(nome)
+        id = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
+        return self.__controlador_sistema.controlador_professor.pega_professor_por_id(id)
 
     def listar_disciplinas(self):
         if len(self.__disciplinas) == 0:

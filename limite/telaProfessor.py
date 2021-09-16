@@ -33,23 +33,25 @@ class TelaProfessor(AbstractTela):
         try:
             nome = str(input("Insira o nome: "))
             idade = int(input("Insira a idade: "))
-            return {"nome": nome, "idade": idade}
+            id = int(input('Insira o id: '))
+            return {"nome": nome, "idade": idade, "id": id}
         except TypeError:
-            self.mostra_msg("Insira um valor válido!")
+            self.mostra_msg("Insira um valor válido!\n")
         except Exception:
-            self.mostra_msg("Ocorreu um erro ao inserir informações")
+            self.mostra_msg("Ocorreu um erro na inserção de informações!\n")
 
     def mostra_professor(self, dados_professor):
+        print("ID: ", dados_professor["id"])
         print("NOME: ", dados_professor["nome"])
         print("IDADE: ", dados_professor["idade"])
         print("DISCIPLINAS:")
         if len(dados_professor["disciplinas"]) == 0:
-            print("Professor não da aula em nenhuma disciplina")
+            print("Professor não dá aula em nenhuma disciplina.")
         else:
             for disciplina in dados_professor["disciplinas"]:
                 print(" NOME: ", disciplina["nome"])
         print("\n")
 
     def seleciona_professor(self):
-        nome = input("Nome do professor que deseja selecionar: ")
-        return nome
+        id = int(input("Id do professor que deseja selecionar: "))
+        return id

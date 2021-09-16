@@ -16,9 +16,9 @@ class ControladorProfessor(AbstractControlador):
     def tela_professor(self) -> TelaProfessor:
         return self.__tela_professor
 
-    def pega_professor_por_nome(self, nome: str):
+    def pega_professor_por_id(self, id: int) -> Professor:
         for professor in self.__professores:
-            if professor.nome == nome:
+            if professor.id == id:
                 return professor
 
         return None
@@ -34,33 +34,53 @@ class ControladorProfessor(AbstractControlador):
 
     def altera_professor(self):
         self.listar_professores()
-        nome = self.__tela_professor.seleciona_professor()
-        professor = self.pega_professor_por_nome(nome)
+        id = self.__tela_professor.seleciona_professor()
+        professor = self.pega_professor_por_id(id)
 
         if professor is not None:
             novos_dados = self.__tela_professor.pega_dados_professor()
-            if(novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
-                self.__tela_aluno.mostra_msg(
-                    "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+
+            if novos_dados is not None:
+                if (not isinstance(novos_dados['idade'], int)) or (novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
+                    self.__tela_aluno.mostra_msg(
+                        "ATENÇÃO: Insira um valor numérico entre 0 e 150!\n")
+                
+                # verifica se o id já existe.
+                id_repetido = False
+                if len(self.__professores) > 0:
+                    for professor in self.__professores:
+                        if novos_dados['id'] == professor.id:
+                            self.__tela_professor.mostra_msg('Este id já está sendo utilizado!\n')
+                            id_repetido = True
+                            break
+
+                if id_repetido == False:
+                    professor.nome = novos_dados["nome"]
+                    professor.idade = novos_dados["idade"]
+                    self.__tela_professor.mostra_msg('Professor alterado!\n')
+                    self.listar_professores()
+
+            else:
                 return None
-            professor.nome = novos_dados["nome"]
-            professor.idade = novos_dados["idade"]
-            self.listar_professores()
         else:
             self.__tela_professor.mostra_msg(
                 "ATENÇÃO: Professor inexistente")
 
     def exclui_professor(self):
         self.listar_professores()
-        nome = self.__tela_professor.seleciona_professor()
-        professor = self.pega_professor_por_nome(nome)
+        id = self.__tela_professor.seleciona_professor()
+        professor = self.pega_professor_por_id(id)
         if professor is not None:
+            ministrando_disciplina = False
             for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
                 if disciplina.professor is professor:
                     self.__tela_professor.mostra_msg(
-                        "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo")
+                        "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo\n")
+                    ministrando_disciplina = True
                     return None
-            self.__professores.remove(professor)
+            if ministrando_disciplina == False: 
+                self.__professores.remove(professor)
+                self.__tela_professor.mostra_msg('Professor excluído com sucesso!\n')
             self.listar_professores()
         else:
             self.__tela_professor.mostra_msg(
@@ -68,11 +88,27 @@ class ControladorProfessor(AbstractControlador):
 
     def inclui_professor(self):
         dados = self.__tela_professor.pega_dados_professor()
-        if(dados["idade"] > 150 or dados["idade"] < 0):
-            self.__tela_aluno.mostra_msg(
-                "ATENÇÃO: Insira uma idade entre 0 e 150 anos")
+        if dados is not None:
+            if (not isinstance(dados['idade'], int)) or (dados["idade"] > 150 or dados["idade"] < 0):
+                self.__tela_aluno.mostra_msg(
+                    "ATENÇÃO: Insira um valor numérico entre 0 e 150!\n")
+
+            # verifica se o id já existe.
+            id_repetido = False
+            if len(self.__professores) > 0:
+                for professor in self.__professores:
+                    if dados['id'] == professor.id:
+                        self.__tela_professor.mostra_msg('Este id já está sendo utilizado!\n')
+                        id_repetido = True
+                        break
+    
+            if not id_repetido:
+                self.__professores.append(
+                    Professor(dados["nome"], dados["idade"], [], dados["id"]))
+                self.__tela_professor.mostra_msg('Professor adicionado!\n')
+        else:
             return None
-        self.__professores.append(Professor(dados["nome"], dados["idade"], []))
+
 
     def listar_professores(self):
         if len(self.__professores) == 0:
@@ -83,7 +119,7 @@ class ControladorProfessor(AbstractControlador):
                 for disciplina in professor.disciplinas:
                     disciplinas.append({"nome": disciplina.nome})
                 self.__tela_professor.mostra_professor(
-                    {"nome": professor.nome, "idade": professor.idade, "disciplinas": disciplinas})
+                    {"nome": professor.nome, "idade": professor.idade, "disciplinas": disciplinas, "id": professor.id})
 
     def professores_len(self) -> int:
         return len(self.__professores)
