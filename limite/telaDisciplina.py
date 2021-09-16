@@ -22,10 +22,10 @@ class TelaDisciplina(AbstractTela):
                     raise Exception()
                 return opcao
             except TypeError:
-                print("Insira um número válido")
+                print("Insira um número válido!\n")
                 continue
             except Exception:
-                print("Insira um número de 1 à 6")
+                print("Insira um número de 0 à 6!\n")
                 continue
 
     def mostra_msg(self, msg: str) -> None:
@@ -38,9 +38,9 @@ class TelaDisciplina(AbstractTela):
             limite_alunos = int(input("Insira o limite de alunos: "))
             return {"nome": nome, "limite_alunos": limite_alunos}
         except TypeError:
-            self.mostra_msg("Insira um valor válido!")
+            self.mostra_msg("Insira um valor válido!\n")
         except Exception:
-            self.mostra_msg("Ocorreu um erro ao inserir informações")
+            self.mostra_msg("Ocorreu um erro na inserção de informações!\n")
 
     def mostra_disciplina(self, dados_disciplina):
         print("NOME: ", dados_disciplina["nome"])
@@ -48,7 +48,7 @@ class TelaDisciplina(AbstractTela):
         print("PROFESSOR: ", dados_disciplina["professor"])
         print("ALUNOS:")
         if len(dados_disciplina["alunos"]) == 0:
-            print("Nenhum aluno matriculado nesta disciplina")
+            print("Não há nenhum aluno matriculado nesta disciplina.\n")
         else:
             for aluno in dados_disciplina["alunos"]:
                 print(" MATRÍCULA: ", aluno["matricula"])
@@ -56,5 +56,9 @@ class TelaDisciplina(AbstractTela):
         print("\n")
 
     def seleciona_disciplina(self):
-        nome = str(input("Nome da disciplina que deseja selecionar: "))
-        return nome
+        try:    
+            nome = str(input("Nome da disciplina que deseja selecionar: "))
+            return nome
+        except Exception:
+            self.mostra_msg('Houve um erro na inserção de informações!\n')
+

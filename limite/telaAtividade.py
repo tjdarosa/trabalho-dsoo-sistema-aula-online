@@ -91,5 +91,8 @@ class TelaAtividade(AbstractTela):
         print("\n")
 
     def seleciona_atividade(self):
-        nome = str(input("Titulo da Atividade que deseja selecionar: "))
-        return nome
+        try:
+            nome = str(input("Titulo da Atividade que deseja selecionar: "))
+            return nome
+        except Exception:
+            self.mostra_msg('Houve um erro na inserção de informações!\n')

@@ -53,5 +53,10 @@ class TelaAluno(AbstractTela):
         print("\n")
 
     def seleciona_aluno(self):
-        matricula = int(input("Matricula do aluno que deseja selecionar: "))
-        return matricula
+        try:
+            matricula = int(input("Matricula do aluno que deseja selecionar: "))
+            return matricula
+        except TypeError:
+            self.mostra_msg('A matrícula deve conter apenas números inteiros!\n')
+        except Exception:
+            self.mostra_msg('Houve um erro na inserção de informações!\n')

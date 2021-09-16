@@ -63,8 +63,11 @@ class TelaCurso(AbstractTela):
         print("\n")
 
     def seleciona_curso(self):
-        nome = input("Nome do curso que deseja selecionar: ")
-        return nome
+        try:
+            nome = input("Nome do curso que deseja selecionar: ")
+            return nome
+        except Exception:
+            self.mostra_msg('Houve um erro na inserção de informações!\n')
 
     def mostra_msg(self, msg):
         print(msg)

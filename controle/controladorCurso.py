@@ -139,3 +139,7 @@ class ControladorCurso(AbstractControlador):
         for curso in self.__cursos:
             if curso.nome == nome_curso:
                 return curso
+
+    @property
+    def cursos(self):
+        return self.__cursos
