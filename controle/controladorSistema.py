@@ -51,7 +51,6 @@ class ControladorSistema(AbstractControlador):
                         "6 - Cadastro de Atividades": self.cadastra_atividade}
         while True:
             button, values = self.__tela_sistema.open()
-            # opcao_escolhida = self.__tela_sistema.mostra_opcoes()
             self.__tela_sistema.close()
             lista_opcoes[button]()
 

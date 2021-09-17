@@ -7,6 +7,7 @@ from controle.abstractControlador import AbstractControlador
 
 
 class ControladorDisciplina(AbstractControlador):
+
     def __init__(self, controlador_sistema) -> None:
         self.__controlador_sistema = controlador_sistema
         self.__disciplinas = []
@@ -31,12 +32,20 @@ class ControladorDisciplina(AbstractControlador):
         return None
 
     def abre_tela(self):
+        
         lista_opcoes = {0: self.retornar,
-                        1: self.listar_disciplinas, 2: self.inclui_disciplina, 3: self.altera_disciplina, 4: self.exclui_disciplina, 5: self.inclui_aluno, 6: self.exclui_aluno}
+                        1: self.listar_disciplinas,
+                        2: self.inclui_disciplina,
+                        3: self.altera_disciplina,
+                        4: self.exclui_disciplina,
+                        5: self.inclui_aluno,
+                        6: self.exclui_aluno}
         while True:
-            lista_opcoes[self.__tela_disciplina.mostra_opcoes()]()
+            (botao, dados) = self.__tela_disciplina.open()
+            lista_opcoes[botao]()
 
     def retornar(self):
+        self.__tela_disciplina.close()
         self.__controlador_sistema.abre_tela()
 
     def altera_disciplina(self):
@@ -75,21 +84,20 @@ class ControladorDisciplina(AbstractControlador):
 
     def inclui_disciplina(self):
         if(self.__controlador_sistema.controlador_professor.professores_len() == 0):
-            self.__tela_disciplina.mostra_msg(
+            self.__tela_disciplina.showMessage(
+                "ERRO",
                 "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina")
             return None
         dados = self.__tela_disciplina.pega_dados_disciplina()
         if dados is not None:
-            self.__tela_disciplina.mostra_msg("SELECIONE UM PROFESSOR:")
-            professor = self.pega_professor_pra_disciplina()
-            if(professor is None):
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Professor não identificado, não foi possível adicionar disciplina")
-                return None
-            nova_disciplina = Disciplina(
-                dados["nome"], [], professor, dados["limite_alunos"])
-            self.__disciplinas.append(nova_disciplina)
-            professor.disciplinas.append(nova_disciplina)
+            for professor in self.__controlador_sistema.controlador_professor.professores:
+                if dados['professor'] == professor.nome:
+                    nova_disciplina = Disciplina(
+                        dados["nome"], [], professor, dados["limite_alunos"])
+                    self.__disciplinas.append(nova_disciplina)
+                    professor.disciplinas.append(nova_disciplina)
+                else:
+                    self.__tela_disciplina.showMessage('ERRO', 'Professor não encontrado!')
         else:
             return None
 
@@ -99,18 +107,14 @@ class ControladorDisciplina(AbstractControlador):
         return self.__controlador_sistema.controlador_professor.pega_professor_por_id(id)
 
     def listar_disciplinas(self):
-        if len(self.__disciplinas) == 0:
-            self.__tela_disciplina.mostra_msg("Nenhuma disciplina cadastrada! \n")
-            # return -1 é utilizado para evitar geração de relatórios caso não exsitam disciplinas cadastradas.
-            return -1
-        else:
-            for disciplina in self.__disciplinas:
-                alunos = []
-                for aluno in disciplina.alunos:
-                    alunos.append(
-                        {"matricula": aluno.matricula, "nome": aluno.nome})
-                self.__tela_disciplina.mostra_disciplina(
-                    {"nome": disciplina.nome, "limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos})
+        disciplinas = {}
+        for disciplina in self.__disciplinas:
+            alunos = []
+            for aluno in disciplina.alunos:
+                alunos.append(
+                    {"matricula": aluno.matricula, "nome": aluno.nome})
+            disciplinas[disciplina.nome] = {"limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos}
+        self.__tela_disciplina.mostra_disciplina(disciplinas) 
 
     def inclui_aluno(self):
         # Seleciona Disciplina
