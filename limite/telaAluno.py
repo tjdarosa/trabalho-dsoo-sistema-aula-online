@@ -27,9 +27,10 @@ class TelaAluno(AbstractTela):
         layout = [
             [sg.Text("Incluir Aluno",
                      size=(30, 1), font=('Times', 25))],
-            [sg.Text("Matricula"), sg.InputText('matricula')],
-            [sg.Text("Nome"), sg.InputText('nome')],
-            [sg.Text("Idade"), sg.InputText('idade')],
+            [sg.Text("Matricula"), sg.InputText()],
+            [sg.Text("Nome"), sg.InputText()],
+            [sg.Text("Idade"), sg.InputText()],
+            [sg.Submit(button_text="Concluir"), sg.Button("Voltar")],
         ]
         self.__window = sg.Window(
             "incluir Aluno", default_element_size=(50, 1)).Layout(layout)
@@ -94,9 +95,11 @@ class TelaAluno(AbstractTela):
 
     def seleciona_aluno(self):
         try:
-            matricula = int(input("Matricula do aluno que deseja selecionar: "))
+            matricula = int(
+                input("Matricula do aluno que deseja selecionar: "))
             return matricula
         except TypeError:
-            self.mostra_msg('A matrícula deve conter apenas números inteiros!\n')
+            self.mostra_msg(
+                'A matrícula deve conter apenas números inteiros!\n')
         except Exception:
             self.mostra_msg('Houve um erro na inserção de informações!\n')

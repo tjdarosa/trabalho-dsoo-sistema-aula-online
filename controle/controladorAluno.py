@@ -30,10 +30,11 @@ class ControladorAluno(AbstractControlador):
     def abre_tela(self):
         lista_opcoes = {"Retornar": self.retornar,
                         "Listar Alunos": self.listar_alunos, "Adicionar Aluno": self.inclui_aluno, "Alterar Aluno": self.altera_aluno, "Excluir Aluno": self.exclui_aluno}
-        event, _ = self.__tela_aluno.open()
-        self.__tela_aluno.close()
         while True:
+            event, _ = self.__tela_aluno.open()
+            self.__tela_aluno.close()
             lista_opcoes[event]()
+            self.__tela_aluno.init_componentes()
 
     def retornar(self):
         self.__controlador_sistema.abre_tela()
@@ -88,8 +89,10 @@ class ControladorAluno(AbstractControlador):
     def inclui_aluno(self):
         self.__tela_aluno.init_inclui_aluno()
         button, values = self.__tela_aluno.open()
-
+        self.__tela_aluno.close()
         print(button, values)
+        if button == "Voltar":
+            return
         dados = self.__tela_aluno.pega_dados_aluno()
         if dados is not None:
             if (not isinstance(dados["idade"], int)) or (dados["idade"] > 150 or dados["idade"] < 0):
