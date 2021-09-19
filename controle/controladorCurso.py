@@ -1,5 +1,7 @@
 
 
+from PySimpleGUI.PySimpleGUI import Input
+from exceptions.inputException import InputException
 from entidades.curso import Curso
 from limite.telaCurso import TelaCurso
 from controle.abstractControlador import AbstractControlador
@@ -29,128 +31,174 @@ class ControladorCurso(AbstractControlador):
 
     def listar_cursos(self):
         if len(self.__cursos) == 0:
-            self.__tela_curso.mostra_msg("Nenhum curso cadastrado! \n")
+            self.__tela_curso.showMessage(
+                "Erro", "Nenhum curso cadastrado! \n")
             # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
             return -1
-        else:
-            for curso in self.__cursos:
-                self.__tela_curso.mostra_curso(curso)
+
+        cursos_dicionario = self.cria_dicionario_cursos()
+
+        self.__tela_curso.mostra_cursos(cursos_dicionario)
 
     def inclui_curso(self):
         try:
             if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
                 self.__tela_curso.showMessage("ERRO",
                                               'Primeiro cadastre uma disciplina.')
-            else:
-                # Cria uma lista com as disciplinas em dicionário
-                disciplinas = []
-                for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                    disciplinas.append(
-                        {"codigo": disciplina.codigo, "nome": disciplina.nome})
+                return
 
-                # seleciona nome do curso e as disciplinas que ele terá.
-                button, values = self.__tela_curso.pega_dados_curso(
-                    disciplinas)
+            # Cria uma lista com as disciplinas em dicionário
+            disciplinas = []
+            for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                disciplinas.append(
+                    {"codigo": disciplina.codigo, "nome": disciplina.nome})
+            # seleciona nome do curso e as disciplinas que ele terá.
+            button, values = self.__tela_curso.pega_dados_curso(
+                disciplinas)
 
-                # verifica se os dados não são vazios e se o nome do curso já existe.
-                cursos_existentes = []
-                for curso in self.__cursos:
-                    cursos_existentes.append(curso.codigo)
+            if button == "Retornar" or button is None:
+                return
+            # verifica se os dados não são vazios e se o nome do curso já existe.
+            self.validar_formulario(button, values)
 
-                if values is None:
-                    self.__tela_curso.showMessage("ERRO",
-                                                  'Houve um erro na inserção de informações! \n')
-                elif values['codigo'] in cursos_existentes:
-                    self.__tela_curso.showMessage(
-                        "ERRO", 'Curso já existente! \n')
+            # Encontra as disciplinas selecionadas
+            disciplinas_curso = []
+            for key in values:
+                if key == "codigo" or key == "nome":
+                    continue
+                if values[key]:
+                    disciplinas_curso.append(
+                        self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_codigo(key))
+            if len(disciplinas_curso) == 0:
+                raise InputException(
+                    'Deve ser selecionado pelo menos uma Disciplina para o Curso')
+            # Salva
+            self.__cursos.append(
+                Curso(values['nome'], disciplinas_curso, values["codigo"]))
+            self.__tela_curso.showMessage(
+                "Sucesso!", 'Curso cadastrado! \n')
 
-                else:
-                    # Encontra as disciplinas selecionadas
-                    disciplinas_curso = []
-                    for key in values:
-                        if key == "codigo" or key == "nome":
-                            continue
-                        if values[key]:
-                            disciplinas_curso.appen(
-                                self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_codigo(key))
-
-                    self.__cursos.append(
-                        Curso(values['nome'], disciplinas_curso))
-                    self.__tela_curso.mostra_msg('Curso cadastrado! \n')
-
+        except InputException as e:
+            self.__tela_curso.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.inclui_curso()
         except Exception as e:
             print(e)
             self.__tela_curso.showMessage(
                 "ERRO", "Ocorreu um erro durante o registro do Curso")
 
     def altera_curso(self):
-        self.listar_cursos()
-        nome = self.__tela_curso.seleciona_curso()
-        curso = self.pega_curso_por_nome(nome)
+        try:
+            if len(self.__cursos) == 0:
+                self.__tela_curso.showMessage(
+                    "Erro", "Nenhum curso cadastrado! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_curso.seleciona_curso(
+                self.cria_dicionario_cursos())
+            if button_selecionar == "Voltar":
+                return
 
-        if curso is not None:
-            # seleciona nome do curso e quantidade de disciplinas que ele terá.
-            novos_dados = self.__tela_curso.pega_nome_qtd_disciplinas_curso()
+            # Pega a instancia do curso selecionado
+            curso_selecionado = None
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    curso_selecionado = self.pega_curso_por_codigo(key)
 
-            # verifica se os novos dados não são vazios e se o nome do curso já existe.
-            cursos_existentes = []
-            for curso in self.__cursos:
-                cursos_existentes.append(curso.nome)
-            if novos_dados is None:
-                self.__tela_curso.mostra_msg(
-                    'Houve um erro na inserção de informações! \n')
-            elif novos_dados['nome'] in cursos_existentes:
-                self.__tela_curso.mostra_msg('Curso já existente! \n')
+            # Cria uma lista com as disciplinas em dicionário
+            disciplinas = []
+            for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                disciplinas.append(
+                    {"codigo": disciplina.codigo, "nome": disciplina.nome})
+            button, values = self.__tela_curso.pega_dados_curso(disciplinas)
 
-            else:
-                self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
-                disciplinas_curso = self.__tela_curso.pega_disciplinas_curso(
-                    novos_dados['qtd_disciplinas'])
+            if button == "Retornar" or button is None:
+                return
+            self.validar_formulario(button, values)
 
-                # verifica se há disciplinas repetidas.
-                if len(disciplinas_curso) != len(set(disciplinas_curso)):
-                    self.__tela_curso.mostra_msg(
-                        'Existem disciplinas repetidas! Tente novamente. \n')
+            # Encontra as disciplinas selecionadas
+            disciplinas_curso = []
+            for key in values:
+                if key == "codigo" or key == "nome":
+                    continue
+                if values[key]:
+                    disciplinas_curso.append(
+                        self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_codigo(key))
+            if len(disciplinas_curso) == 0:
+                raise InputException(
+                    'Deve ser selecionado pelo menos uma Disciplina para o Curso')
+            # Salva
+            curso_selecionado.codigo = values["codigo"]
+            curso_selecionado.nome = values["nome"]
+            curso_selecionado.disciplinas = disciplinas_curso
 
-                else:
-                    # verifica se as disciplinas informadas existem.
-                    disciplinas_existentes = []
-                    disciplinas_validadas = []
-                    for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                        disciplinas_existentes.append(disciplina.nome)
-                    for disciplina_recebida in disciplinas_curso:
-                        if disciplina_recebida not in disciplinas_existentes:
-                            self.__tela_curso.mostra_msg(
-                                'Disciplina ' + '"' + str(disciplina_recebida) + '"' + ' informada não existe!')
-                        elif disciplina_recebida in disciplinas_existentes:
-                            disciplinas_validadas.append(disciplina_recebida)
+            self.__tela_curso.showMessage(
+                "Sucesso!", 'Curso Alterado! \n')
 
-                        if len(disciplinas_curso) == len(disciplinas_validadas):
-                            curso.nome = novos_dados["nome"]
-                            curso.disciplinas = disciplinas_curso
-                            self.__tela_curso.mostra_msg('Curso alterado! \n')
-        else:
-            self.__tela_curso.mostra_msg("ATENÇÃO: Curso inexistente! \n")
+        except InputException as e:
+            self.__tela_curso.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.altera_curso()
+        except Exception as e:
+            self.__tela_curso.showMessage(
+                "ERRO", "Ocorreu um erro durante a alteração do curso")
 
     def exclui_curso(self):
-        nome = self.__tela_curso.seleciona_curso()
-        curso = self.pega_curso_por_nome(nome)
-        if len(self.__cursos) > 0:
-            for curso_cadastrado in self.__cursos:
-                if curso_cadastrado.nome == curso.nome:
-                    self.__cursos.remove(curso_cadastrado)
-                    self.__tela_curso.mostra_msg(
-                        'Curso excluído: ' + str(curso_cadastrado.nome))
-                else:
-                    self.__tela_curso.mostra_msg(
-                        'Curso não encontrado. Não foi possível excluí-lo')
-        else:
-            self.__tela_curso.mostra_msg('Não há cursos cadastrados.')
+        try:
+            if len(self.__cursos) == 0:
+                self.__tela_curso.showMessage(
+                    "Erro", "Nenhum curso cadastrado! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_curso.seleciona_curso(
+                self.cria_dicionario_cursos())
+            if button_selecionar == "Voltar":
+                return
+            # Pega a instancia do curso selecionado
+            curso_selecionado = None
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    curso_selecionado = self.pega_curso_por_codigo(key)
+            self.__cursos.remove(curso_selecionado)
+            self.__tela_curso.showMessage(
+                "Sucesso!", 'Curso Excluído! \n')
+        except Exception as e:
+            print(e)
+            self.__tela_curso.showMessage(
+                "ERRO", "Ocorreu um erro durante a exclusão do curso")
 
     def pega_curso_por_nome(self, nome_curso: str) -> Curso:
         for curso in self.__cursos:
             if curso.nome == nome_curso:
                 return curso
+
+    def pega_curso_por_codigo(self, codigo: str) -> Curso:
+        for curso in self.__cursos:
+            if curso.codigo == codigo:
+                return curso
+
+    def cria_dicionario_cursos(self):
+        cursos_dicionario = []
+        for curso in self.__cursos:
+            curso_disciplinas = []
+            for disciplina in curso.disciplinas:
+                curso_disciplinas.append(
+                    {"codigo": disciplina.codigo, "nome": disciplina.nome})
+            cursos_dicionario.append(
+                {"codigo": curso.codigo, "nome": curso.nome, "disciplinas": curso_disciplinas})
+
+        return cursos_dicionario
+
+    def validar_formulario(self, button, values):
+        cursos_existentes = []
+        for curso in self.__cursos:
+            cursos_existentes.append(curso.codigo)
+        if values['codigo'] in cursos_existentes:
+            raise InputException("Já exsite um curso com este código")
+        if values["codigo"] == "":
+            raise InputException("O Campo Código é Necessário ")
+        if values["nome"] == "":
+            raise InputException("O Campo Nome é Necessário ")
 
     @property
     def cursos(self):
