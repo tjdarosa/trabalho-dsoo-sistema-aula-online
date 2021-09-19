@@ -50,8 +50,6 @@ class ControladorProfessor(AbstractControlador):
         try:
             botao, dados = self.__tela_professor.seleciona_professor_para_alterar()
             if botao not in ('cancelar', None):
-
-                print(botao, dados)
                 professor = self.pega_professor_por_id(int(dados['id']))
 
                 if professor is not None:
@@ -100,29 +98,34 @@ class ControladorProfessor(AbstractControlador):
                 "Houve um problema ao alterar o professor!")
 
     def exclui_professor(self):
-        botao, dados = self.__tela_professor.seleciona_professor_para_excluir()
-        if botao not in ('cancelar', None):
-            professor = self.pega_professor_por_id(int(dados['id']))
-            if professor is not None:
-                ministrando_disciplina = False
-                for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                    if disciplina.professor is professor:
+        try:
+            botao, dados = self.__tela_professor.seleciona_professor_para_excluir()
+            if botao not in ('cancelar', None):
+                professor = self.pega_professor_por_id(int(dados['id']))
+                if professor is not None:
+                    ministrando_disciplina = False
+                    for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                        if disciplina.professor is professor:
+                            self.__tela_professor.showMessage(
+                                'ERRO',
+                                "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo!")
+                            ministrando_disciplina = True
+                            return None
+                    if ministrando_disciplina == False:
+                        self.__professores.remove(professor)
                         self.__tela_professor.showMessage(
-                            'ERRO',
-                            "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo!")
-                        ministrando_disciplina = True
-                        return None
-                if ministrando_disciplina == False:
-                    self.__professores.remove(professor)
+                            'SUCESSO',
+                            'Professor excluído com sucesso!')
+                else:
                     self.__tela_professor.showMessage(
-                        'SUCESSO',
-                        'Professor excluído com sucesso!')
+                        'ERRO,'
+                        "ATENÇÃO: Professor inexistente!")
             else:
-                self.__tela_professor.showMessage(
-                    'ERRO,'
-                    "ATENÇÃO: Professor inexistente!")
-        else:
-            return None
+                return None
+        except Exception:
+            self.__tela_professor.showMessage(
+                        'ERRO,'
+                        "Houve um problema ao excluir professor!")
 
     def inclui_professor(self):
         try:
@@ -132,7 +135,7 @@ class ControladorProfessor(AbstractControlador):
                 if int(dados["idade"]) > 150 or int(dados["idade"]) < 0:
                     self.__tela_professor.showMessage(
                         'ERRO',
-                        "ATENÇÃO: Insira um valor numérico entre 0 e 150!")
+                        "ATENÇÃO: Insira um valor numérico entre 0 e 150 para a idade!")
                 else:
                     # verifica se o id já existe.
                     id_repetido = False
@@ -163,21 +166,28 @@ class ControladorProfessor(AbstractControlador):
                 "Houve problema ao adicionar professor!")
 
     def listar_professores(self):
-        if len(self.__professores) == 0:
+        try:
+            if len(self.__professores) == 0:
+                self.__tela_professor.showMessage(
+                    'ERRO',
+                    "Nenhum professor cadastrado!")
+            else:
+                professores = {}
+                for professor in self.__professores:
+                    disciplinas = []
+                    for disciplina in professor.disciplinas:
+                        disciplinas.append(disciplina.nome)
+
+                    professores[professor.id] = {
+                        'idade': professor.idade,
+                        'nome': professor.nome,
+                        'disciplinas': disciplinas}
+                self.__tela_professor.mostra_professores(professores)
+        except Exception:
             self.__tela_professor.showMessage(
                 'ERRO',
-                "Nenhum professor cadastrado!")
-        else:
-            professores = {}
-            for professor in self.__professores:
-                disciplinas = []
-                for disciplina in professor.disciplinas:
-                    disciplinas.append(disciplina.nome)
-                professores[professor.nome] = {
-                    'idade': professor.idade,
-                    'id': professor.id,
-                    'disciplinas': disciplinas}
-            self.__tela_professor.mostra_professores(professores)
+                "Houve problema ao listar professores!")
+
 
     def professores_len(self) -> int:
         return len(self.__professores)
