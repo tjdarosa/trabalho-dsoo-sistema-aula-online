@@ -37,7 +37,48 @@ class TelaCurso(AbstractTela):
             [sg.Submit("Concluir", size=20), sg.Button("Retornar", size=20)],
         ]
         self.__window = sg.Window("Dados Curso").Layout(layout)
-        return self.open()
+        button, values = self.open()
+        self.close()
+        return button, values
+
+    def mostra_cursos(self, cursos: list):
+        cursos_rows = []
+        for curso in cursos:
+            cursos_rows.append([sg.Text("Nome: " + curso["nome"])])
+            cursos_rows.append([sg.Text("Código: " + curso["codigo"])])
+            cursos_rows.append([sg.Text("Disciplinas do Curso: ")])
+            for disciplina in curso["disciplinas"]:
+                cursos_rows.append(
+                    [sg.Text("   " + disciplina["codigo"] + " - " + disciplina["nome"])])
+            cursos_rows.append([sg.Text("\n")])
+        layout = [
+            [sg.Text("Listagem de Cursos", size=(30, 1), font=(
+                'Times', 25), justification='c')],
+            *cursos_rows,
+            [sg.Button("Voltar")]
+        ]
+
+        self.__window = sg.Window("Listagem de Cursos").Layout(layout)
+        button, values = self.open()
+        self.close()
+        return button, values
+
+    def seleciona_curso(self, cursos):
+        cursos_rows = []
+        for curso in cursos:
+            cursos_rows.append(
+                [sg.Radio(curso["codigo"]+" - "+curso["nome"], "RADIO_CURSO", key=curso["codigo"])])
+
+        layout = [
+            [sg.Text("Selecionar Curso", size=(30, 1), font=(
+                'Times', 25), justification='c')],
+            *cursos_rows,
+            [sg.Submit("Próximo"), sg.Button("Voltar")]
+        ]
+        self.__window = sg.Window("Selecionar Curso").Layout(layout)
+        button, values = self.open()
+        self.close()
+        return button, values
 
     def open(self):
         button, values = self.__window.Read()
@@ -54,28 +95,6 @@ class TelaCurso(AbstractTela):
         button, values = self.open()
         self.close()
         return button, values
-
-    def mostra_opcoes_old(self):
-        print("=========== CADASTROS DE CURSOS ===========")
-        print('Escolha a opção: ')
-        print("1 - Listar Cursos")
-        print("2 - Adicionar Cursos")
-        print("3 - Alterar Cursos")
-        print("4 - Excluir Cursos")
-        print("0 - Retornar")
-        while True:
-            try:
-                opcao = int(input('Escolha uma opção: '))
-                print()
-                if opcao > 4 or opcao < 0:
-                    raise Exception
-                return opcao
-            except TypeError:
-                print('Insira um número válido.')
-                continue
-            except Exception:
-                print('Insira um valor numérico entre 0 e 4.')
-                continue
 
     def pega_nome_qtd_disciplinas_curso(self) -> dict:
         try:
@@ -112,7 +131,7 @@ class TelaCurso(AbstractTela):
             print(disciplina)
         print("\n")
 
-    def seleciona_curso(self):
+    def seleciona_curso_old(self):
         try:
             nome = input("Nome do curso que deseja selecionar: ")
             return nome
