@@ -39,8 +39,8 @@ class TelaProfessor(AbstractTela):
         else:
             for key, value in professores.items():
                 layout.append([
-                    [sg.Text('Nome:'), sg.Text(key)],
-                    [sg.Text('ID:'), sg.Text(str(value['id']))],
+                    [sg.Text('ID:'), sg.Text(key)],
+                    [sg.Text('Nome:'), sg.Text(str(value['nome']))],
                     [sg.Text('Idade:'), sg.Text(str(value['idade']))],
                     [sg.Text('Disciplinas:')]
                 ])
@@ -65,7 +65,7 @@ class TelaProfessor(AbstractTela):
             [sg.Text('Insira a idade:'), sg.InputText('Idade (ex: 34)', key='idade')],
             [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
             ]
-        self.__window = sg.Window('Criação de Professores', element_justification='c').Layout(layout)
+        self.__window = sg.Window('Cadastro de Professores', element_justification='c').Layout(layout)
         botao, dados = self.open()
         self.close()
         self.init_components()
@@ -79,7 +79,7 @@ class TelaProfessor(AbstractTela):
             [sg.Text('Insira a idade:'), sg.InputText('Idade (ex: 34)', key='idade')],
             [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
             ]
-        self.__window = sg.Window('Alteração de Professores', element_justification='c').Layout(layout)
+        self.__window = sg.Window('Alteração de Cadastro de Professores', element_justification='c').Layout(layout)
         botao, dados = self.open()
         self.close()
         self.init_components()
