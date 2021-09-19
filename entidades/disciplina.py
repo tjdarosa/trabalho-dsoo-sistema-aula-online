@@ -4,7 +4,7 @@ from entidades.professor import Professor
 
 
 class Disciplina:
-    def __init__(self, nome: str, alunos: list, professor: Professor, limite_alunos: int, codigo: str) -> None:
+    def __init__(self, nome: str, alunos: list, professor: Professor, limite_alunos: int, codigo: int) -> None:
         self.__nome = nome
         self.__alunos = alunos
         self.__professor = professor
@@ -20,11 +20,11 @@ class Disciplina:
         self.__nome = nome
 
     @property
-    def codigo(self) -> str:
+    def codigo(self) -> int:
         return self.__codigo
 
     @codigo.setter
-    def codigo(self, codigo: str) -> None:
+    def codigo(self, codigo: int) -> None:
         self.__codigo = codigo
 
     @property

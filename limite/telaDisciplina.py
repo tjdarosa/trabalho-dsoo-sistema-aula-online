@@ -8,9 +8,9 @@ import PySimpleGUI as sg
 class TelaDisciplina(AbstractTela):
     def __init__(self) -> None:
         self.__window = None
-        self.init_components()
+        self.init_componentes()
 
-    def init_components(self):
+    def init_componentes(self):
         layout = [
             [sg.Text('Gerenciamento de Cadastro de Disciplinas', size=(
                 35, 1), font=('Times', 20), justification='c')],
@@ -25,6 +25,12 @@ class TelaDisciplina(AbstractTela):
 
         self.__window = sg.Window(
             'Gerenciamento de Cadastro de disciplinas', element_justification='c').Layout(layout)
+
+    def mostra_opcoes(self):
+        self.init_componentes()
+        button, values = self.open()
+        self.close()
+        return button, values
 
     def open(self):
         button, values = self.__window.Read()
@@ -53,7 +59,39 @@ class TelaDisciplina(AbstractTela):
         self.__window = sg.Window(
             'Listagem de Disciplinas', element_justification='c').Layout(layout)
 
-    def pega_dados_disciplina(self):
+    def mostra_disciplinas(self, disciplinas: list):
+        disicplina_rows = []
+        for disciplina in disciplinas:
+            disicplina_rows.append([sg.Text("Nome: " + disciplina["nome"])])
+            disicplina_rows.append(
+                [sg.Text("Código: " + disciplina["codigo"])])
+            disicplina_rows.append(
+                [sg.Text("Limite de Alunos: " + (str(disciplina["limite_alunos"])))])
+            disicplina_rows.append([sg.Text(
+                "Professor/a: " + str(disciplina["professor"]["codigo"]) + " - " + disciplina["professor"]["nome"])])
+            disicplina_rows.append(
+                [sg.Text("Alunos Matricualados nesta Disciplina: ")])
+            for aluno in disciplina["alunos"]:
+                disicplina_rows.append(
+                    [sg.Text("   " + aluno["codigo"] + " - " + aluno["nome"])])
+            disicplina_rows.append([sg.Text("\n")])
+        layout = [
+            [sg.Text("Listagem de Disciplinas", size=(30, 1), font=(
+                'Times', 25), justification='c')],
+            *disicplina_rows,
+            [sg.Button("Voltar")]
+        ]
+
+        self.__window = sg.Window("Listagem de Cursos").Layout(layout)
+        button, values = self.open()
+        self.close()
+        return button, values
+
+    def pega_dados_disciplina(self, lista_professores, isUpdate=False):
+        professores = []
+        for professor in lista_professores:
+            professores.append(
+                [sg.Radio(str(professor["codigo"])+" - "+professor["nome"], "RADIO_PROFESSOR", key=professor["codigo"])])
         layout = [
             [sg.Text('Insira o nome:'), sg.InputText(
                 'Nome da disiplina', key='nome')],
@@ -61,17 +99,34 @@ class TelaDisciplina(AbstractTela):
                 'Código da Disciplina', key='codigo')],
             [sg.Text('Insira o limite de alunos:'), sg.InputText(
                 'Limite de alunos', key="limite_alunos")],
-            [sg.Text('Insira o professor:'), sg.InputText(
-                'Professor da disciplina', key="codigo_professor"), ],
+            [sg.Text("Selecione o Professor que irá ministrar a Disciplina:")],
+            *professores,
             [sg.Submit('Confirmar'), sg.Cancel('Cancelar')]
         ]
         self.__window = sg.Window(
-            'Criação de Disciplinas', element_justification='c').Layout(layout)
+            'Criação de Disciplinas',).Layout(layout)
         botao, dados = self.open()
         self.close()
-        self.init_components()
+        self.init_componentes()
         print(botao, dados)
         return botao, dados
+
+    def seleciona_disciplina(self, disciplinas):
+        disciplinas_rows = []
+        for disciplina in disciplinas:
+            disciplinas_rows.append(
+                [sg.Radio((str(disciplina["codigo"]))+" - "+disciplina["nome"], "RADIO_CURSO", key=disciplina["codigo"])])
+
+        layout = [
+            [sg.Text("Selecionar Disciplina", size=(30, 1), font=(
+                'Times', 25), justification='c')],
+            *disciplinas_rows,
+            [sg.Submit("Próximo"), sg.Button("Voltar")]
+        ]
+        self.__window = sg.Window("Selecionar Disciplina").Layout(layout)
+        button, values = self.open()
+        self.close()
+        return button, values
 
     # def mostra_opcoes(self):
     #     print("=========== CADASTROS DE DISCIPLINAS ===========")

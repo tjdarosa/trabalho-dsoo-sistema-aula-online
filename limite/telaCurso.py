@@ -96,47 +96,5 @@ class TelaCurso(AbstractTela):
         self.close()
         return button, values
 
-    def pega_nome_qtd_disciplinas_curso(self) -> dict:
-        try:
-            nome = str(input("Insira o nome do curso: "))
-            numero_disciplinas = int(
-                input('informe quantas disciplinas terá o curso:'))
-
-            return {'nome': nome, 'qtd_disciplinas': numero_disciplinas}
-        except TypeError:
-            self.mostra_msg("Insira um nome ou valor válido!")
-            self.pega_nome_qtd_disciplinas_curso
-        except Exception:
-            self.pega_nome_qtd_disciplinas_curso
-
-    def pega_disciplinas_curso(self, qtd_disciplinas) -> list:
-        try:
-            count = 0
-            disciplinas = []
-            while count < qtd_disciplinas:
-                disciplina = str(input('Insira o nome da ' +
-                                 str(count + 1) + 'a' + ' disciplina:'))
-                disciplinas.append(disciplina)
-                count += 1
-            return disciplinas
-        except TypeError:
-            self.mostra_msg("Insira um nome válido!")
-        except Exception:
-            self.mostra_msg("Ocorreu um erro ao inserir informações")
-
-    def mostra_curso(self, curso):
-        print("NOME:", curso.nome)
-        print("DISCIPLINAS:")
-        for disciplina in curso.disciplinas:
-            print(disciplina)
-        print("\n")
-
-    def seleciona_curso_old(self):
-        try:
-            nome = input("Nome do curso que deseja selecionar: ")
-            return nome
-        except Exception:
-            self.mostra_msg('Houve um erro na inserção de informações!\n')
-
     def mostra_msg(self, msg):
         print(msg)

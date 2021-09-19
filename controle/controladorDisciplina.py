@@ -1,5 +1,7 @@
 
 
+from exceptions.inputException import InputException
+from dao.disciplinaDAO import DisciplinaDAO
 from entidades.professor import Professor
 from entidades.disciplina import Disciplina
 from limite.telaDisciplina import TelaDisciplina
@@ -12,13 +14,14 @@ class ControladorDisciplina(AbstractControlador):
         self.__controlador_sistema = controlador_sistema
         self.__disciplinas = []
         self.__tela_disciplina = TelaDisciplina()
+        self.__disciplina_dao = DisciplinaDAO()
 
     @property
     def disciplinas(self) -> list:
         return self.__disciplinas
 
     def tem_disciplinas(self):
-        return len(self.__disciplinas) > 0
+        return len(self.__disciplina_dao.getAll()) > 0
 
     @property
     def tela_disciplina(self) -> TelaDisciplina:
@@ -31,8 +34,8 @@ class ControladorDisciplina(AbstractControlador):
 
         return None
 
-    def pega_disciplina_por_codigo(self, codigo: str):
-        for disciplina in self.__disciplinas:
+    def pega_disciplina_por_codigo(self, codigo: int):
+        for disciplina in self.__disciplina_dao.getAll():
             if disciplina.codigo == codigo:
                 return disciplina
 
@@ -48,84 +51,167 @@ class ControladorDisciplina(AbstractControlador):
                         5: self.inclui_aluno,
                         6: self.exclui_aluno}
         while True:
-            botao, dados = self.tela_disciplina.open()
-            self.tela_disciplina.close()
+            botao, dados = self.tela_disciplina.mostra_opcoes()
+            if botao is None:
+                botao = 0
             lista_opcoes[botao]()
 
     def retornar(self):
-        self.__tela_disciplina.close()
         self.__controlador_sistema.abre_tela()
 
+    def inclui_disciplina(self):
+        try:
+            if(self.__controlador_sistema.controlador_professor.professores_len() == 0):
+                self.__tela_disciplina.showMessage(
+                    "ERRO",
+                    "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina!")
+                return
+
+            # Cria dicionario com professores para mostrar na tela
+            professores = []
+            # TODO: VALIDAR DEPOIS COM PERSISTENCIA
+            for professor in self.__controlador_sistema.controlador_professor.professores:
+                professores.append(
+                    {"codigo": professor.id, "nome": professor.nome})
+
+            # Pega dados
+            button, values = self.__tela_disciplina.pega_dados_disciplina(
+                professores)
+
+            if button == "Cancelar" or button is None:
+                return
+
+            self.validar_formulario(button, values)
+
+            # Encontra o professor selecionado
+            professor_disciplina = None
+            for key in values:
+                if key == "codigo" or key == "nome" or key == "limite_alunos":
+                    continue
+                if values[key]:
+                    professor_disciplina = self.__controlador_sistema.controlador_professor.pega_professor_por_id(
+                        key)
+            if (professor_disciplina) == None:
+                raise InputException(
+                    'A Disciplina deve ter um Professor para ministrá-la')
+
+            nova_disciplina = Disciplina(values["nome"], [
+            ], professor_disciplina, values["limite_alunos"], values["codigo"])
+            self.__disciplina_dao.add(nova_disciplina)
+
+            # TODO: Usar ProfessorDAO aqui
+            professor.disciplinas.append(nova_disciplina)
+            self.__tela_disciplina.showMessage(
+                "Sucesso!", "Disciplina cadastrada")
+        except InputException as e:
+            self.__tela_disciplina.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.inclui_disciplina()
+        except Exception as e:
+            print(e)
+            self.__tela_disciplina.showMessage(
+                "ERRO", "Ocorreu um erro durante o registro da Disciplina")
+
     def altera_disciplina(self):
-        nome = self.__tela_disciplina.seleciona_disciplina()
-        disciplina = self.pega_disciplina_por_nome(nome)
-        if disciplina is not None:
-            disciplina.professor.disciplinas.remove(disciplina)
-            novos_dados = self.__tela_disciplina.pega_dados_disciplina()
-            self.__tela_disciplina.mostra_msg("SELECIONE UM PROFESSOR:")
-            professor = self.pega_professor_pra_disciplina()
-            if professor is not None:
-                professor.disciplinas.append(disciplina)
-                disciplina.nome = novos_dados["nome"]
-                disciplina.limite_alunos = novos_dados["limite_alunos"]
-                disciplina.professor = professor
-                self.listar_disciplinas()
-            else:
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Professor inexistente")
-        else:
-            self.__tela_disciplina.mostra_msg(
-                "ATENÇÃO: Disciplina inexistente")
+        try:
+            if len(self.getAllDisciplinas()) == 0:
+                self.__tela_disciplina.showMessage(
+                    "Erro", "Nenhuma disciplina cadastrado! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
+                self.cria_dicionario_disciplinas())
+
+            if button_selecionar == "Voltar":
+                return
+
+            # Pega a instancia da disciplina selecionado
+            disciplina_selecionada = None
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    disciplina_selecionada = self.pega_disciplina_por_codigo(
+                        key)
+            # Cria dicionario com professores para mostrar na tela
+            professores = []
+            # TODO: VALIDAR DEPOIS COM PERSISTENCIA
+            for professor in self.__controlador_sistema.controlador_professor.professores:
+                professores.append(
+                    {"codigo": professor.id, "nome": professor.nome})
+
+            # Pega dados
+            button, values = self.__tela_disciplina.pega_dados_disciplina(
+                professores)
+
+            if button == "Cancelar" or button is None:
+                return
+
+            self.validar_formulario(button, values, isUpdate=True)
+
+            # Encontra o professor selecionado
+            professor_disciplina = None
+            for key in values:
+                if key == "codigo" or key == "nome" or key == "limite_alunos":
+                    continue
+                if values[key]:
+                    professor_disciplina = self.__controlador_sistema.controlador_professor.pega_professor_por_id(
+                        key)
+            if (professor_disciplina) == None:
+                raise InputException(
+                    'A Disciplina deve ter um Professor para ministrá-la')
+
+            # disciplina_selecionada.codigo = values["codigo"]
+            disciplina_selecionada.nome = values["nome"]
+            disciplina_selecionada.limite_alunos = values["limite_alunos"]
+            disciplina_selecionada.professor = professor
+
+            self.__disciplina_dao.update(disciplina_selecionada)
+            self.__tela_disciplina.showMessage(
+                "Sucesso!", "Disciplina alterada com sucesso")
+        except InputException as e:
+            self.__tela_disciplina.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.inclui_disciplina()
+        except Exception as e:
+            print(e)
+            self.__tela_disciplina.showMessage(
+                "ERRO", "Ocorreu um erro ao alterar a Disciplina")
 
     def exclui_disciplina(self):
-        self.listar_disciplinas()
-        nome = self.__tela_disciplina.seleciona_disciplina()
-        disciplina = self.pega_disciplina_por_nome(nome)
-        if disciplina is not None:
-            disciplina.professor.disciplinas.remove(disciplina)
-            self.__disciplinas.remove(disciplina)
-            self.__tela_disciplina.mostra_msg(
-                'Disciplina excluída com sucesso!')
-        else:
-            self.__tela_disciplina.mostra_msg(
-                "ATENÇÃO: Disciplina inexistente")
-
-    def inclui_disciplina(self):
-        if(self.__controlador_sistema.controlador_professor.professores_len() == 0):
+        try:
+            if len(self.getAllDisciplinas()) == 0:
+                self.__tela_disciplina.showMessage(
+                    "Erro", "Nenhuma disciplina cadastrado! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
+                self.cria_dicionario_disciplinas())
+            if button_selecionar == "Voltar":
+                return
+            # Remove a Disiplina selecionada
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    self.__disciplina_dao.remove(int(key))
             self.__tela_disciplina.showMessage(
-                "ERRO",
-                "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina!")
-            return None
-        button, values = self.__tela_disciplina.pega_dados_disciplina()
-        if values is not None:
-            for professor in self.__controlador_sistema.controlador_professor.professores:
-                if values['codigo_professor'] == str(professor.id):
-                    nova_disciplina = Disciplina(
-                        values["nome"], [], professor, values["limite_alunos"], values["codigo"])
-                    self.__disciplinas.append(nova_disciplina)
-                    professor.disciplinas.append(nova_disciplina)
-                else:
-                    self.__tela_disciplina.showMessage(
-                        'ERRO',
-                        'Professor não encontrado!')
-        else:
-            return None
-
-    def pega_professor_pra_disciplina(self):
-        self.__controlador_sistema.controlador_professor.listar_professores()
-        id = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
-        return self.__controlador_sistema.controlador_professor.pega_professor_por_id(id)
+                "Sucesso!", "Disciplina excluida")
+        except Exception as e:
+            print(e)
+            self.__tela_disciplina.showMessage(
+                "ERRO", "Ocorreu um erro ao excluir a Disciplina")
 
     def listar_disciplinas(self):
-        disciplinas = {}
-        for disciplina in self.__disciplinas:
+
+        if len(self.getAllDisciplinas()) == 0:
+            return self.__tela_disciplina.showMessage("ERRO", "Nenhuma disicplina Cadastrada")
+
+        disciplinas = []
+        for disciplina in self.getAllDisciplinas():
             alunos = []
             for aluno in disciplina.alunos:
                 alunos.append(
-                    {"matricula": aluno.matricula, "nome": aluno.nome})
-            disciplinas[disciplina.nome] = {
-                "limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos}
-        self.__tela_disciplina.mostra_disciplina(disciplinas)
+                    {"codigo": str(aluno.matricula), "nome": aluno.nome})
+            disciplinas.append({"nome": disciplina.nome, "codigo": disciplina.codigo,
+                                "limite_alunos": disciplina.limite_alunos, "professor": {"codigo":  disciplina.professor.id, "nome":  disciplina.professor.nome}, "alunos": alunos})
+        self.__tela_disciplina.mostra_disciplinas(disciplinas)
 
     def inclui_aluno(self):
         # Seleciona Disciplina
@@ -191,3 +277,28 @@ class ControladorDisciplina(AbstractControlador):
         else:
             self.__tela_disciplina.mostra_msg(
                 'Esta disciplina não possui alunos!\n')
+
+    def validar_formulario(self, button, values, isUpdate=False):
+        disciplinas_existentes = []
+        for disciplina in self.__disciplina_dao.getAll():
+            disciplinas_existentes.append(disciplina.codigo)
+        if not isUpdate and values['codigo'] in disciplinas_existentes:
+            raise InputException("Já exsite uma disciplina com este código")
+        if not isUpdate and values["codigo"] == "":
+            raise InputException("O Campo Código é obrigatório ")
+        if not values["codigo"].isnumeric():
+            raise InputException("O Campo Código deve ser um número inteiro ")
+        if values["limite_alunos"] == "":
+            raise InputException("O Campo Limite de Alunos é obrigatório ")
+        if values["nome"] == "":
+            raise InputException("O Campo Nome é obrigatório ")
+
+    def getAllDisciplinas(self):
+        return self.__disciplina_dao.getAll()
+
+    def cria_dicionario_disciplinas(self):
+        lista = []
+        for disciplina in self.getAllDisciplinas():
+            lista.append({"codigo": disciplina.codigo,
+                         "nome": disciplina.nome})
+        return lista

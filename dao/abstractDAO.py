@@ -36,11 +36,8 @@ class AbstractDAO(ABC):
             pass
 
     def remove(self, key):
-        try:
-            self.__cache.pop(key)
-            self.dump()
-        except KeyError:
-            pass
+        self.__cache.pop(key)
+        self.dump()
 
     def getAll(self):
         return self.__cache.values()
