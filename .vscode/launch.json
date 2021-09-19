@@ -1,0 +1,5 @@
+{
+  "configurations": [
+  {"name":"Python: Arquivo Atual","type":"python","request":"launch","program":"main.py","console":"integratedTerminal"}
+  ]
+}

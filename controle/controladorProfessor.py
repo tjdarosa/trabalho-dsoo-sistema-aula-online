@@ -13,6 +13,10 @@ class ControladorProfessor(AbstractControlador):
         self.__tela_professor = TelaProfessor()
 
     @property
+    def professores(self) -> list:
+        return self.__professores
+
+    @property
     def tela_professor(self) -> TelaProfessor:
         return self.__tela_professor
 
@@ -60,14 +64,16 @@ class ControladorProfessor(AbstractControlador):
                     if len(self.__professores) > 0:
                         for professor in self.__professores:
                             if novos_dados['id'] == professor.id:
-                                self.__tela_professor.mostra_msg('Este id já está sendo utilizado!\n')
+                                self.__tela_professor.mostra_msg(
+                                    'Este id já está sendo utilizado!\n')
                                 id_repetido = True
                                 break
 
                     if id_repetido == False:
                         professor.nome = novos_dados["nome"]
                         professor.idade = novos_dados["idade"]
-                        self.__tela_professor.mostra_msg('Professor alterado!\n')
+                        self.__tela_professor.mostra_msg(
+                            'Professor alterado!\n')
                         self.listar_professores()
 
             else:
@@ -88,9 +94,10 @@ class ControladorProfessor(AbstractControlador):
                         "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo\n")
                     ministrando_disciplina = True
                     return None
-            if ministrando_disciplina == False: 
+            if ministrando_disciplina == False:
                 self.__professores.remove(professor)
-                self.__tela_professor.mostra_msg('Professor excluído com sucesso!\n')
+                self.__tela_professor.mostra_msg(
+                    'Professor excluído com sucesso!\n')
             self.listar_professores()
         else:
             self.__tela_professor.mostra_msg(
@@ -116,7 +123,7 @@ class ControladorProfessor(AbstractControlador):
                                     'Este id já está sendo utilizado!')
                                 id_repetido = True
                                 break
-            
+
                     if not id_repetido:
                         self.__professores.append(
                             Professor(dados["nome"], int(dados["idade"]), [], int(dados["id"])))
@@ -127,13 +134,12 @@ class ControladorProfessor(AbstractControlador):
                 return None
         except ValueError:
             self.__tela_professor.showMessage(
-                        'ERRO',
-                        "Um ou mais valores inseridos não estão corretos!")
+                'ERRO',
+                "Um ou mais valores inseridos não estão corretos!")
         except Exception:
             self.__tela_professor.showMessage(
-                        'ERRO',
-                        "Houve problema ao adicionar professor!")
-
+                'ERRO',
+                "Houve problema ao adicionar professor!")
 
     def listar_professores(self):
         if len(self.__professores) == 0:

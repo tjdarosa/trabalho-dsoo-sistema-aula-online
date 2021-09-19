@@ -12,7 +12,8 @@ class TelaDisciplina(AbstractTela):
 
     def init_components(self):
         layout = [
-            [sg.Text('Gerenciamento de Cadastro de Disciplinas', size=(35,1), font=('Times', 20), justification='c')],
+            [sg.Text('Gerenciamento de Cadastro de Disciplinas', size=(
+                35, 1), font=('Times', 20), justification='c')],
             [sg.Button('Listar Disciplinas', key=1, size=30)],
             [sg.Button('Adicionar Disciplina', key=2, size=30)],
             [sg.Button('Alterar Disciplina', key=3, size=30)],
@@ -22,7 +23,8 @@ class TelaDisciplina(AbstractTela):
             [sg.Button('Retornar', key=0, size=30)]
         ]
 
-        self.__window = sg.Window('Gerenciamento de Cadastro de disciplinas', element_justification='c').Layout(layout)
+        self.__window = sg.Window(
+            'Gerenciamento de Cadastro de disciplinas', element_justification='c').Layout(layout)
 
     def open(self):
         button, values = self.__window.Read()
@@ -37,59 +39,40 @@ class TelaDisciplina(AbstractTela):
     def mostra_disciplina(self, dados_disciplina: dict):
         layout = []
         if dados_disciplina == {}:
-            layout.append([sg.Text('Não há disciplinas cadastradas!', size=(35,1), font=('Times', 20), justification='c')])
+            layout.append([sg.Text('Não há disciplinas cadastradas!', size=(
+                35, 1), font=('Times', 20), justification='c')])
         else:
             for key in dados_disciplina.keys():
                 layout.append(
                     [sg.Text('Disciplina:'), sg.Text(str(key))],
-                    [sg.Text('Limite de Alunos:'), sg.Text(str(key['limite_alunos']))]
+                    [sg.Text('Limite de Alunos:'), sg.Text(
+                        str(key['limite_alunos']))]
                     # continuar com demais dados depois de testar
-                    )
+                )
         layout.append([sg.OK(size=15)])
-        self.__window = sg.Window('Listagem de Disciplinas', element_justification='c').Layout(layout)
-        
-
+        self.__window = sg.Window(
+            'Listagem de Disciplinas', element_justification='c').Layout(layout)
 
     def pega_dados_disciplina(self):
         layout = [
-            [sg.Text('Insira o nome:'), sg.InputText('Nome da disiplina', key='nome')],
-            [sg.Text('Insira o limite de alunos:'), sg.InputText('Limite de alunos')],
-            [sg.Text('Insira o professor:'), sg.InputText('Professor da disciplina')],
+            [sg.Text('Insira o nome:'), sg.InputText(
+                'Nome da disiplina', key='nome')],
+            [sg.Text('Insira o Código:'), sg.InputText(
+                'Código da Disciplina', key='codigo')],
+            [sg.Text('Insira o limite de alunos:'), sg.InputText(
+                'Limite de alunos', key="limite_alunos")],
+            [sg.Text('Insira o professor:'), sg.InputText(
+                'Professor da disciplina', key="codigo_professor"), ],
             [sg.Submit('Confirmar'), sg.Cancel('Cancelar')]
-            ]
-        self.__window = sg.Window('Criação de Disciplinas', element_justification='c').Layout(layout)
-        return self.open()
+        ]
+        self.__window = sg.Window(
+            'Criação de Disciplinas', element_justification='c').Layout(layout)
+        botao, dados = self.open()
+        self.close()
+        self.init_components()
+        print(botao, dados)
+        return botao, dados
 
-        
-
-        
-
-
-                    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     # def mostra_opcoes(self):
     #     print("=========== CADASTROS DE DISCIPLINAS ===========")
     #     while True:
@@ -142,9 +125,8 @@ class TelaDisciplina(AbstractTela):
     #     print("\n")
 
     # def seleciona_disciplina(self):
-    #     try:    
+    #     try:
     #         nome = str(input("Nome da disciplina que deseja selecionar: "))
     #         return nome
     #     except Exception:
     #         self.mostra_msg('Houve um erro na inserção de informações!\n')
-

@@ -31,8 +31,15 @@ class ControladorDisciplina(AbstractControlador):
 
         return None
 
+    def pega_disciplina_por_codigo(self, codigo: str):
+        for disciplina in self.__disciplinas:
+            if disciplina.codigo == codigo:
+                return disciplina
+
+        return None
+
     def abre_tela(self):
-        
+
         lista_opcoes = {0: self.retornar,
                         1: self.listar_disciplinas,
                         2: self.inclui_disciplina,
@@ -41,7 +48,8 @@ class ControladorDisciplina(AbstractControlador):
                         5: self.inclui_aluno,
                         6: self.exclui_aluno}
         while True:
-            (botao, dados) = self.__tela_disciplina.open()
+            botao, dados = self.tela_disciplina.open()
+            self.tela_disciplina.close()
             lista_opcoes[botao]()
 
     def retornar(self):
@@ -56,7 +64,7 @@ class ControladorDisciplina(AbstractControlador):
             novos_dados = self.__tela_disciplina.pega_dados_disciplina()
             self.__tela_disciplina.mostra_msg("SELECIONE UM PROFESSOR:")
             professor = self.pega_professor_pra_disciplina()
-            if professor is not None:    
+            if professor is not None:
                 professor.disciplinas.append(disciplina)
                 disciplina.nome = novos_dados["nome"]
                 disciplina.limite_alunos = novos_dados["limite_alunos"]
@@ -76,7 +84,8 @@ class ControladorDisciplina(AbstractControlador):
         if disciplina is not None:
             disciplina.professor.disciplinas.remove(disciplina)
             self.__disciplinas.remove(disciplina)
-            self.__tela_disciplina.mostra_msg('Disciplina excluída com sucesso!')
+            self.__tela_disciplina.mostra_msg(
+                'Disciplina excluída com sucesso!')
         else:
             self.__tela_disciplina.mostra_msg(
                 "ATENÇÃO: Disciplina inexistente")
@@ -87,12 +96,12 @@ class ControladorDisciplina(AbstractControlador):
                 "ERRO",
                 "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina!")
             return None
-        dados = self.__tela_disciplina.pega_dados_disciplina()
-        if dados is not None:
+        button, values = self.__tela_disciplina.pega_dados_disciplina()
+        if values is not None:
             for professor in self.__controlador_sistema.controlador_professor.professores:
-                if dados['professor'] == professor.nome:
+                if values['codigo_professor'] == str(professor.id):
                     nova_disciplina = Disciplina(
-                        dados["nome"], [], professor, dados["limite_alunos"])
+                        values["nome"], [], professor, values["limite_alunos"], values["codigo"])
                     self.__disciplinas.append(nova_disciplina)
                     professor.disciplinas.append(nova_disciplina)
                 else:
@@ -114,8 +123,9 @@ class ControladorDisciplina(AbstractControlador):
             for aluno in disciplina.alunos:
                 alunos.append(
                     {"matricula": aluno.matricula, "nome": aluno.nome})
-            disciplinas[disciplina.nome] = {"limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos}
-        self.__tela_disciplina.mostra_disciplina(disciplinas) 
+            disciplinas[disciplina.nome] = {
+                "limite_alunos": disciplina.limite_alunos, "professor": disciplina.professor.nome, "alunos": alunos}
+        self.__tela_disciplina.mostra_disciplina(disciplinas)
 
     def inclui_aluno(self):
         # Seleciona Disciplina
@@ -157,7 +167,7 @@ class ControladorDisciplina(AbstractControlador):
         self.listar_disciplinas()
         nome = self.__tela_disciplina.seleciona_disciplina()
         disciplina = self.pega_disciplina_por_nome(nome)
-        
+
         if len(disciplina.alunos) > 0:
             if(disciplina is None):
                 self.__tela_disciplina.mostra_msg(
@@ -169,7 +179,8 @@ class ControladorDisciplina(AbstractControlador):
             aluno = self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(
                 matricula)
             if(aluno is None):
-                self.__tela_disciplina.mostra_msg("ATENÇÃO: Aluno Inexistente!\n")
+                self.__tela_disciplina.mostra_msg(
+                    "ATENÇÃO: Aluno Inexistente!\n")
                 return None
             if aluno in disciplina.alunos:
                 disciplina.alunos.remove(aluno)
@@ -178,4 +189,5 @@ class ControladorDisciplina(AbstractControlador):
                 self.__tela_disciplina.mostra_msg(
                     "ATENÇÃO: Aluno não está matriculado nesta disciplina!\n")
         else:
-            self.__tela_disciplina.mostra_msg('Esta disciplina não possui alunos!\n')
+            self.__tela_disciplina.mostra_msg(
+                'Esta disciplina não possui alunos!\n')
