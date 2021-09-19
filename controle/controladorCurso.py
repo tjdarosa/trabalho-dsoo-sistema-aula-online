@@ -1,5 +1,6 @@
 
 
+from dao.cursoDAO import CursoDAO
 from PySimpleGUI.PySimpleGUI import Input
 from exceptions.inputException import InputException
 from entidades.curso import Curso
@@ -11,8 +12,9 @@ from controle.controladorDisciplina import ControladorDisciplina
 class ControladorCurso(AbstractControlador):
     def __init__(self, controlador_sistema) -> None:
         self.__controlador_sistema = controlador_sistema
-        self.__cursos = []
+        # self.__cursos = []
         self.__tela_curso = TelaCurso()
+        self.__curso_dao = CursoDAO()
 
     def abre_tela(self):
         lista_opcoes = {0: self.retornar,
@@ -30,7 +32,7 @@ class ControladorCurso(AbstractControlador):
         self.__controlador_sistema.abre_tela()
 
     def listar_cursos(self):
-        if len(self.__cursos) == 0:
+        if len(self.__curso_dao.getAll()) == 0:
             self.__tela_curso.showMessage(
                 "Erro", "Nenhum curso cadastrado! \n")
             # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
@@ -73,7 +75,7 @@ class ControladorCurso(AbstractControlador):
                 raise InputException(
                     'Deve ser selecionado pelo menos uma Disciplina para o Curso')
             # Salva
-            self.__cursos.append(
+            self.__curso_dao.add(
                 Curso(values['nome'], disciplinas_curso, values["codigo"]))
             self.__tela_curso.showMessage(
                 "Sucesso!", 'Curso cadastrado! \n')
@@ -89,7 +91,7 @@ class ControladorCurso(AbstractControlador):
 
     def altera_curso(self):
         try:
-            if len(self.__cursos) == 0:
+            if len(self.__curso_dao.getAll()) == 0:
                 self.__tela_curso.showMessage(
                     "Erro", "Nenhum curso cadastrado! \n")
                 # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
@@ -132,6 +134,8 @@ class ControladorCurso(AbstractControlador):
             curso_selecionado.nome = values["nome"]
             curso_selecionado.disciplinas = disciplinas_curso
 
+            self.__curso_dao.update(curso_selecionado)
+
             self.__tela_curso.showMessage(
                 "Sucesso!", 'Curso Alterado! \n')
 
@@ -145,7 +149,7 @@ class ControladorCurso(AbstractControlador):
 
     def exclui_curso(self):
         try:
-            if len(self.__cursos) == 0:
+            if len(self.__curso_dao.getAll()) == 0:
                 self.__tela_curso.showMessage(
                     "Erro", "Nenhum curso cadastrado! \n")
                 # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
@@ -159,7 +163,7 @@ class ControladorCurso(AbstractControlador):
             for key in values_selecionar:
                 if values_selecionar[key]:
                     curso_selecionado = self.pega_curso_por_codigo(key)
-            self.__cursos.remove(curso_selecionado)
+            self.__curso_dao.remove(curso_selecionado.codigo)
             self.__tela_curso.showMessage(
                 "Sucesso!", 'Curso Excluído! \n')
         except Exception as e:
@@ -168,18 +172,18 @@ class ControladorCurso(AbstractControlador):
                 "ERRO", "Ocorreu um erro durante a exclusão do curso")
 
     def pega_curso_por_nome(self, nome_curso: str) -> Curso:
-        for curso in self.__cursos:
+        for curso in self.__curso_dao.getAll():
             if curso.nome == nome_curso:
                 return curso
 
     def pega_curso_por_codigo(self, codigo: str) -> Curso:
-        for curso in self.__cursos:
+        for curso in self.__curso_dao.getAll():
             if curso.codigo == codigo:
                 return curso
 
     def cria_dicionario_cursos(self):
         cursos_dicionario = []
-        for curso in self.__cursos:
+        for curso in self.__curso_dao.getAll():
             curso_disciplinas = []
             for disciplina in curso.disciplinas:
                 curso_disciplinas.append(
@@ -191,7 +195,7 @@ class ControladorCurso(AbstractControlador):
 
     def validar_formulario(self, button, values):
         cursos_existentes = []
-        for curso in self.__cursos:
+        for curso in self.__curso_dao.getAll():
             cursos_existentes.append(curso.codigo)
         if values['codigo'] in cursos_existentes:
             raise InputException("Já exsite um curso com este código")
@@ -199,7 +203,3 @@ class ControladorCurso(AbstractControlador):
             raise InputException("O Campo Código é Necessário ")
         if values["nome"] == "":
             raise InputException("O Campo Nome é Necessário ")
-
-    @property
-    def cursos(self):
-        return self.__cursos

@@ -7,9 +7,9 @@ class AbstractDAO(ABC):
         self.__datasource = datasource
         self.__cache = {}
         try:
-            self.__load()
+            self.load()
         except FileNotFoundError:
-            self.__dump()
+            self.dump()
 
     def dump(self):
         pickle.dump(self.__cache, open(self.__datasource, "wb"))
@@ -26,6 +26,14 @@ class AbstractDAO(ABC):
     def add(self, key, obj):
         self.__cache[key] = obj
         self.dump()
+
+    def update(self, key, obj):
+        try:
+            if self.__cache[key] is not None:
+                self.__cache[key] = obj
+                self.__dump()
+        except KeyError:
+            pass
 
     def remove(self, key):
         try:
