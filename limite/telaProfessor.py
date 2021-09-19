@@ -69,19 +69,42 @@ class TelaProfessor(AbstractTela):
         botao, dados = self.open()
         self.close()
         self.init_components()
-        print(botao, dados)
         return botao, dados
 
-    def seleciona_professor(self):
+    def pega_novos_dados_professor(self):
         layout = [
-            [sg.Text('Insira o ID:'), sg.InputText('ID (ex: 123)', key='id')]
+            [sg.Text('Insira abaixo os novos dados do professor:')],
+            [sg.Text('Insira o nome:'), sg.InputText('Nome', key='nome')],
+            [sg.Text('Insira o ID:'), sg.InputText('ID (ex: 123)', key='id')],
+            [sg.Text('Insira a idade:'), sg.InputText('Idade (ex: 34)', key='idade')],
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+            ]
+        self.__window = sg.Window('Alteração de Professores', element_justification='c').Layout(layout)
+        botao, dados = self.open()
+        self.close()
+        self.init_components()
+        return botao, dados
+
+    def seleciona_professor_para_alterar(self):
+        layout = [
+            [sg.Text('Insira o ID:'), sg.InputText('ID (ex: 123)', key='id')],
             [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
         ]
         self.__window = sg.Window('Alteração de Cadastro de Professores', element_justification='c').Layout(layout)
         botao, dados = self.open()
         self.close()
         self.init_components()
-        print(botao, dados)
+        return botao, dados
+
+    def seleciona_professor_para_excluir(self):
+        layout = [
+            [sg.Text('Insira o ID:'), sg.InputText('ID (ex: 123)', key='id')],
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+        ]
+        self.__window = sg.Window('Exclusão de Cadastro de Professores', element_justification='c').Layout(layout)
+        botao, dados = self.open()
+        self.close()
+        self.init_components()
         return botao, dados
 
 

@@ -38,7 +38,7 @@ class ControladorProfessor(AbstractControlador):
                 self.__tela_professor.close()
                 lista_opcoes[botao]()
         except KeyError:
-            print(botao, dados)
+            # print(botao, dados)
             self.__tela_professor.init_components()
             self.abre_tela()
 
@@ -47,61 +47,82 @@ class ControladorProfessor(AbstractControlador):
         self.__controlador_sistema.abre_tela()
 
     def altera_professor(self):
-        botao, dados = self.__tela_professor.seleciona_professor()
-        print(botao, dados)
-        professor = self.pega_professor_por_id(dados)
+        try:
+            botao, dados = self.__tela_professor.seleciona_professor_para_alterar()
+            if botao not in ('cancelar', None):
 
-        if professor is not None:
-            novos_dados = self.__tela_professor.pega_dados_professor()
+                print(botao, dados)
+                professor = self.pega_professor_por_id(int(dados['id']))
 
-            if novos_dados is not None:
-                if (not isinstance(novos_dados['idade'], int)) or (novos_dados["idade"] > 150 or novos_dados["idade"] < 0):
-                    self.__tela_professor.mostra_msg(
-                        "ATENÇÃO: Insira um valor numérico entre 0 e 150!\n")
+                if professor is not None:
+                    botao, novos_dados = self.__tela_professor.pega_novos_dados_professor()
+
+                    if novos_dados is not None and botao not in ('cancelar', None):
+                        if (int(novos_dados["idade"]) > 150 or int(novos_dados["idade"]) < 0):
+                            self.__tela_professor.showMessage(
+                                'ERRO',
+                                "ATENÇÃO: Insira um valor numérico entre 0 e 150 para a idade!")
+                        else:
+                            # verifica se o id já existe.
+                            id_repetido = False
+                            if len(self.__professores) > 0:
+                                for professor in self.__professores:
+                                    if novos_dados['id'] == professor.id:
+                                        self.__tela_professor.showMessage(
+                                            'ERRO',
+                                            'Este id já está sendo utilizado!')
+                                        id_repetido = True
+                                        break
+
+                            if id_repetido == False:
+                                professor.nome = novos_dados["nome"]
+                                professor.idade = novos_dados["idade"]
+                                professor.id = novos_dados['id']
+                                self.__tela_professor.showMessage(
+                                    'SUCESSO',
+                                    'Professor alterado!')
+                    else:
+                        return None
                 else:
-                    # verifica se o id já existe.
-                    id_repetido = False
-                    if len(self.__professores) > 0:
-                        for professor in self.__professores:
-                            if novos_dados['id'] == professor.id:
-                                self.__tela_professor.mostra_msg(
-                                    'Este id já está sendo utilizado!\n')
-                                id_repetido = True
-                                break
-
-                    if id_repetido == False:
-                        professor.nome = novos_dados["nome"]
-                        professor.idade = novos_dados["idade"]
-                        self.__tela_professor.mostra_msg(
-                            'Professor alterado!\n')
-                        self.listar_professores()
-
+                    self.__tela_professor.showMessage(
+                    'ERRO',
+                    "ATENÇÃO: Professor inexistente")
             else:
                 return None
-        else:
-            self.__tela_professor.mostra_msg(
-                "ATENÇÃO: Professor inexistente")
+                
+        except ValueError:
+            self.__tela_professor.showMessage(
+                'ERRO',
+                "Um ou mais valores inseridos não estão corretos!")
+        except Exception:
+            self.__tela_professor.showMessage(
+                'ERRO',
+                "Houve um problema ao alterar o professor!")
 
     def exclui_professor(self):
-        self.listar_professores()
-        id = self.__tela_professor.seleciona_professor()
-        professor = self.pega_professor_por_id(id)
-        if professor is not None:
-            ministrando_disciplina = False
-            for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
-                if disciplina.professor is professor:
-                    self.__tela_professor.mostra_msg(
-                        "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo\n")
-                    ministrando_disciplina = True
-                    return None
-            if ministrando_disciplina == False:
-                self.__professores.remove(professor)
-                self.__tela_professor.mostra_msg(
-                    'Professor excluído com sucesso!\n')
-            self.listar_professores()
+        botao, dados = self.__tela_professor.seleciona_professor_para_excluir()
+        if botao not in ('cancelar', None):
+            professor = self.pega_professor_por_id(int(dados['id']))
+            if professor is not None:
+                ministrando_disciplina = False
+                for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+                    if disciplina.professor is professor:
+                        self.__tela_professor.showMessage(
+                            'ERRO',
+                            "ATENÇÃO: Este professor está ministrando uma disciplina. Não será possível excluí-lo!")
+                        ministrando_disciplina = True
+                        return None
+                if ministrando_disciplina == False:
+                    self.__professores.remove(professor)
+                    self.__tela_professor.showMessage(
+                        'SUCESSO',
+                        'Professor excluído com sucesso!')
+            else:
+                self.__tela_professor.showMessage(
+                    'ERRO,'
+                    "ATENÇÃO: Professor inexistente!")
         else:
-            self.__tela_professor.mostra_msg(
-                "ATENÇÃO: Professor inexistente")
+            return None
 
     def inclui_professor(self):
         try:
