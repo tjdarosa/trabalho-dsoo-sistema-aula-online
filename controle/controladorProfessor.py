@@ -23,18 +23,29 @@ class ControladorProfessor(AbstractControlador):
         return None
 
     def abre_tela(self):
-        lista_opcoes = {0: self.retornar,
-                        1: self.listar_professores, 2: self.inclui_professor, 3: self.altera_professor, 4: self.exclui_professor}
-        while True:
-            lista_opcoes[self.__tela_professor.mostra_opcoes()]()
+        try:
+            lista_opcoes = {0: self.retornar,
+                            1: self.listar_professores,
+                            2: self.inclui_professor,
+                            3: self.altera_professor,
+                            4: self.exclui_professor}
+            while True:
+                botao, dados = self.__tela_professor.open()
+                self.__tela_professor.close()
+                lista_opcoes[botao]()
+        except KeyError:
+            print(botao, dados)
+            self.__tela_professor.init_components()
+            self.abre_tela()
 
     def retornar(self):
+        self.__tela_professor.close()
         self.__controlador_sistema.abre_tela()
 
     def altera_professor(self):
-        self.listar_professores()
-        id = self.__tela_professor.seleciona_professor()
-        professor = self.pega_professor_por_id(id)
+        botao, dados = self.__tela_professor.seleciona_professor()
+        print(botao, dados)
+        professor = self.pega_professor_por_id(dados)
 
         if professor is not None:
             novos_dados = self.__tela_professor.pega_dados_professor()
@@ -86,39 +97,60 @@ class ControladorProfessor(AbstractControlador):
                 "ATENÇÃO: Professor inexistente")
 
     def inclui_professor(self):
-        dados = self.__tela_professor.pega_dados_professor()
-        if dados is not None:
-            if (not isinstance(dados['idade'], int)) or (dados["idade"] > 150 or dados["idade"] < 0):
-                self.__tela_professor.mostra_msg(
-                    "ATENÇÃO: Insira um valor numérico entre 0 e 150!\n")
+        try:
+            botao, dados = self.__tela_professor.pega_dados_professor()
+            if dados is not None and botao not in ('cancelar', None):
+                # verifica se a idade está dentro do permitido
+                if int(dados["idade"]) > 150 or int(dados["idade"]) < 0:
+                    self.__tela_professor.showMessage(
+                        'ERRO',
+                        "ATENÇÃO: Insira um valor numérico entre 0 e 150!")
+                else:
+                    # verifica se o id já existe.
+                    id_repetido = False
+                    if len(self.__professores) > 0:
+                        for professor in self.__professores:
+                            if dados['id'] == professor.id:
+                                self.__tela_professor.showMessage(
+                                    'ERRO',
+                                    'Este id já está sendo utilizado!')
+                                id_repetido = True
+                                break
+            
+                    if not id_repetido:
+                        self.__professores.append(
+                            Professor(dados["nome"], int(dados["idade"]), [], int(dados["id"])))
+                        self.__tela_professor.showMessage(
+                            'SUCESSO',
+                            'Professor adicionado!')
             else:
-                # verifica se o id já existe.
-                id_repetido = False
-                if len(self.__professores) > 0:
-                    for professor in self.__professores:
-                        if dados['id'] == professor.id:
-                            self.__tela_professor.mostra_msg('Este id já está sendo utilizado!\n')
-                            id_repetido = True
-                            break
-        
-                if not id_repetido:
-                    self.__professores.append(
-                        Professor(dados["nome"], dados["idade"], [], dados["id"]))
-                    self.__tela_professor.mostra_msg('Professor adicionado!\n')
-        else:
-            return None
+                return None
+        except ValueError:
+            self.__tela_professor.showMessage(
+                        'ERRO',
+                        "Um ou mais valores inseridos não estão corretos!")
+        except Exception:
+            self.__tela_professor.showMessage(
+                        'ERRO',
+                        "Houve problema ao adicionar professor!")
 
 
     def listar_professores(self):
         if len(self.__professores) == 0:
-            self.__tela_professor.mostra_msg("Nenhum professor cadastrado")
+            self.__tela_professor.showMessage(
+                'ERRO',
+                "Nenhum professor cadastrado!")
         else:
+            professores = {}
             for professor in self.__professores:
                 disciplinas = []
                 for disciplina in professor.disciplinas:
-                    disciplinas.append({"nome": disciplina.nome})
-                self.__tela_professor.mostra_professor(
-                    {"nome": professor.nome, "idade": professor.idade, "disciplinas": disciplinas, "id": professor.id})
+                    disciplinas.append(disciplina.nome)
+                professores[professor.nome] = {
+                    'idade': professor.idade,
+                    'id': professor.id,
+                    'disciplinas': disciplinas}
+            self.__tela_professor.mostra_professores(professores)
 
     def professores_len(self) -> int:
         return len(self.__professores)

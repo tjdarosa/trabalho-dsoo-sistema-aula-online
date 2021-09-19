@@ -42,17 +42,21 @@ class ControladorSistema(AbstractControlador):
         return self.__controlador_atividade
 
     def abre_tela(self) -> None:
-        lista_opcoes = {"0 - Sair do Sistemas": self.encerra_sistema,
-                        "1 - Gerar Relatórios": self.relatorios,
-                        "2 - Cadastro de Cursos": self.cadastra_curso,
-                        "3 - Cadastro de Disciplinas": self.cadastra_disciplinas,
-                        "4 - Cadastro de Professores": self.cadastra_professores,
-                        "5 - Cadastro de Alunos": self.cadastra_aluno,
-                        "6 - Cadastro de Atividades": self.cadastra_atividade}
-        while True:
-            button, values = self.__tela_sistema.open()
-            self.__tela_sistema.close()
-            lista_opcoes[button]()
+        try:
+            lista_opcoes = {"0 - Sair do Sistemas": self.encerra_sistema,
+                            "1 - Gerar Relatórios": self.relatorios,
+                            "2 - Cadastro de Cursos": self.cadastra_curso,
+                            "3 - Cadastro de Disciplinas": self.cadastra_disciplinas,
+                            "4 - Cadastro de Professores": self.cadastra_professores,
+                            "5 - Cadastro de Alunos": self.cadastra_aluno,
+                            "6 - Cadastro de Atividades": self.cadastra_atividade}
+            while True:
+                button, values = self.__tela_sistema.open()
+                self.__tela_sistema.close()
+                lista_opcoes[button]()
+        except KeyError:
+            self.__tela_sistema.init_componentes()
+            self.abre_tela()
 
     def inicializa_sistema(self):
         self.abre_tela()

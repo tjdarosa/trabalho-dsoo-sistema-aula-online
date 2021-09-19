@@ -49,7 +49,6 @@ class ControladorDisciplina(AbstractControlador):
         self.__controlador_sistema.abre_tela()
 
     def altera_disciplina(self):
-        self.listar_disciplinas()
         nome = self.__tela_disciplina.seleciona_disciplina()
         disciplina = self.pega_disciplina_por_nome(nome)
         if disciplina is not None:
@@ -86,7 +85,7 @@ class ControladorDisciplina(AbstractControlador):
         if(self.__controlador_sistema.controlador_professor.professores_len() == 0):
             self.__tela_disciplina.showMessage(
                 "ERRO",
-                "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina")
+                "ATENÇÃO: Cadastre um Professor para poder adicionar uma disciplina!")
             return None
         dados = self.__tela_disciplina.pega_dados_disciplina()
         if dados is not None:
@@ -97,7 +96,9 @@ class ControladorDisciplina(AbstractControlador):
                     self.__disciplinas.append(nova_disciplina)
                     professor.disciplinas.append(nova_disciplina)
                 else:
-                    self.__tela_disciplina.showMessage('ERRO', 'Professor não encontrado!')
+                    self.__tela_disciplina.showMessage(
+                        'ERRO',
+                        'Professor não encontrado!')
         else:
             return None
 

@@ -46,18 +46,22 @@ class TelaDisciplina(AbstractTela):
                     # continuar com demais dados depois de testar
                     )
         layout.append([sg.OK(size=15)])
-        self.__window = sg.Window(
-            'Listagem de Disciplinas', element_justification='c').Layout(layout)
+        self.__window = sg.Window('Listagem de Disciplinas', element_justification='c').Layout(layout)
+        
 
 
     def pega_dados_disciplina(self):
         layout = [
-            [sg.Text('Insira o nome:'), sg.InputText('Nome da disiplina')],
-            [sg.Text('Insira o professor:'), sg.InputText('Professor da disciplina')],
+            [sg.Text('Insira o nome:'), sg.InputText('Nome da disiplina', key='nome')],
             [sg.Text('Insira o limite de alunos:'), sg.InputText('Limite de alunos')],
+            [sg.Text('Insira o professor:'), sg.InputText('Professor da disciplina')],
             [sg.Submit('Confirmar'), sg.Cancel('Cancelar')]
             ]
         self.__window = sg.Window('Criação de Disciplinas', element_justification='c').Layout(layout)
+        return self.open()
+
+        
+
         
 
 
