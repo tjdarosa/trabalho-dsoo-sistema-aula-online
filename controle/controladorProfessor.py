@@ -14,6 +14,10 @@ class ControladorProfessor(AbstractControlador):
         self.__professor_dao = ProfessorDAO()
 
     @property
+    def professor_dao(self) -> ProfessorDAO:
+        return self.__professor_dao
+
+    @property
     def tela_professor(self) -> TelaProfessor:
         return self.__tela_professor
 

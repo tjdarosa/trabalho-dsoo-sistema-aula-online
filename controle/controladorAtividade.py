@@ -59,16 +59,16 @@ class ControladorAtividade(AbstractControlador):
             novos_dados = self.__tela_atividade.pega_dados_atividade()
             if novos_dados is None:
                 return None
-            self.__tela_atividade.mostra_msg("SELECIONE UM PROFESSOR:")
+            self.__tela_atividade.showMessage("SELECIONE UM PROFESSOR:")
             professor = self.pega_professor_pra_disciplina()
             if(professor is None):
-                self.__tela_atividade.mostra_msg(
+                self.__tela_atividade.showMessage(
                     "ATENÇÃO: Professor não identificado, não foi possível adicionar atividade")
                 return None
-            self.__tela_atividade.mostra_msg("SELECIONE UMA DISCIPLINA:")
+            self.__tela_atividade.showMessage("SELECIONE UMA DISCIPLINA:")
             disciplina = self.pega_disciplina_pra_atividade()
             if(disciplina is None):
-                self.__tela_atividade.mostra_msg(
+                self.__tela_atividade.showMessage(
                     "ATENÇÃO: Disciplina não identificada, não foi possível adicionar atividade")
                 return None
             atividade.titulo = novos_dados["titulo"]
@@ -78,7 +78,7 @@ class ControladorAtividade(AbstractControlador):
             atividade.disciplina = disciplina
             self.listar_atividades()
         else:
-            self.__tela_atividade.mostra_msg(
+            self.__tela_atividade.showMessage(
                 "ATENÇÃO: Atividade inexistente")
 
     def exclui_atividade(self):
@@ -89,33 +89,37 @@ class ControladorAtividade(AbstractControlador):
             self.__atividades.remove(atividade)
             self.listar_atividades()
         else:
-            self.__tela_atividade.mostra_msg(
+            self.__tela_atividade.showMessage(
                 "ATENÇÃO: Atividade inexistente")
 
     def inclui_atividade(self):
-        dados = self.__tela_atividade.pega_dados_atividade()
-        if dados is None:
-            return None
-        self.__tela_atividade.mostra_msg("SELECIONE UM PROFESSOR:")
-        professor = self.pega_professor_pra_atividade()
-        if(professor is None):
-            self.__tela_atividade.mostra_msg(
-                "ATENÇÃO: Professor não identificado, não foi possível adicionar atividade")
-            return None
-
-        self.__tela_atividade.mostra_msg("SELECIONE UMA DISCIPLINA:")
-        disciplina = self.pega_disciplina_pra_atividade()
-        if(disciplina is None):
-            self.__tela_atividade.mostra_msg(
-                "ATENÇÃO: Disciplina não identificada, não foi possível adicionar atividade")
-            return None
+        disciplinas = []
+        for disc in self.__controlador_sistema.controlador_disciplina.disciplina_dao.getAll():
+            disciplinas.append(disc.nome)
+        professores = []
+        for prof in self.__controlador_sistema.controlador_professor.professor_dao.getAll():
+            professores.append(prof.nome)
+        botao, dados = self.__tela_atividade.pega_dados_atividade(disciplinas, professores)
+        if dados is not None and botao not in ('cancelar', None):
+            
+            professor = self.pega_professor_pra_atividade()
+            if(professor is None):
+                self.__tela_atividade.showMessage(
+                    'ERRO',
+                    "ATENÇÃO: Professor não identificado, não foi possível adicionar atividade")
+                return None
+            disciplina = self.pega_disciplina_pra_atividade()
+            if(disciplina is None):
+                self.__tela_atividade.showMessage(
+                    "ATENÇÃO: Disciplina não identificada, não foi possível adicionar atividade")
+                return None
 
         self.__atividades.append(
             Atividade(dados["titulo"], dados["descricao"], dados["prazo"], professor, [], disciplina))
 
     def listar_atividades(self):
         if len(self.__atividades) == 0:
-            self.__tela_atividade.mostra_msg("Nenhuma Atividade cadastrada")
+            self.__tela_atividade.showMessage("Nenhuma Atividade cadastrada")
         else:
             for atividade in self.__atividades:
                 atividades_aluno = []
@@ -142,15 +146,15 @@ class ControladorAtividade(AbstractControlador):
 
         aluno = self.pega_aluno_pra_atividade_aluno()
         if aluno is None:
-            self.__tela_atividade.mostra_msg("ATENÇÃO: Aluno Inexistente.")
+            self.__tela_atividade.showMessage("ATENÇÃO: Aluno Inexistente.")
             return None
         if aluno not in atividade.disciplina.alunos:
-            self.__tela_atividade.mostra_msg(
+            self.__tela_atividade.showMessage(
                 "ATENÇÃO: Aluno não matriuclado nesta disciplina ")
             return None
         for atividade_aluno in atividade.atividades_aluno:
             if aluno == atividade_aluno.aluno:
-                self.__tela_atividade.mostra_msg(
+                self.__tela_atividade.showMessage(
                     "ATENÇÃO: Aluno já possui esta atividade")
                 return None
 
@@ -169,7 +173,7 @@ class ControladorAtividade(AbstractControlador):
         atividade = self.pega_atividade_por_titulo(titulo)
         aluno = self.pega_aluno_pra_atividade_aluno()
         if aluno is None:
-            self.__tela_atividade.mostra_msg("ATENÇÃO: Aluno Inexistente.")
+            self.__tela_atividade.showMessage("ATENÇÃO: Aluno Inexistente.")
             return None
         for atividade_aluno in atividade.atividades_aluno:
             if aluno == atividade_aluno.aluno:
@@ -183,7 +187,7 @@ class ControladorAtividade(AbstractControlador):
         atividade = self.pega_atividade_por_titulo(titulo)
         aluno = self.pega_aluno_pra_atividade_aluno()
         if aluno is None:
-            self.__tela_atividade.mostra_msg("ATENÇÃO: Aluno Inexistente.")
+            self.__tela_atividade.showMessage("ATENÇÃO: Aluno Inexistente.")
             return None
         dados = self.__tela_atividade.pega_nota_atividade_aluno()
         if(dados is None):
@@ -194,16 +198,13 @@ class ControladorAtividade(AbstractControlador):
                 atividade_aluno.nota = dados["nota"]
 
     def pega_professor_pra_atividade(self):
-        self.__controlador_sistema.controlador_professor.listar_professores()
         id = self.__controlador_sistema.controlador_professor.tela_professor.seleciona_professor()
         return self.__controlador_sistema.controlador_professor.pega_professor_por_id(id)
 
     def pega_aluno_pra_atividade_aluno(self):
-        self.__controlador_sistema.controlador_aluno.listar_alunos()
         matricula = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno()
         return self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(matricula)
 
     def pega_disciplina_pra_atividade(self):
-        self.__controlador_sistema.controlador_disciplina.listar_disciplinas()
         nome = self.__controlador_sistema.controlador_disciplina.tela_disciplina.seleciona_disciplina()
         return self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_nome(nome)

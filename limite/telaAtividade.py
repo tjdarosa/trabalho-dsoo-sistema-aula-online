@@ -37,6 +37,27 @@ class TelaAtividade(AbstractTela):
     def mostra_atividades(self):
         layout = []
 
+    def pega_dados_atividade(self, nomes_disciplinas, nomes_professores):
+        layout = [
+            [sg.Text('Insira o código:'), sg.InputText('Código', key='codigo')],
+            [sg.Text('Insira o título:'), sg.InputText('Título', key='titulo')],
+            [sg.Text('Insira a descrição:'), sg.InputText('Descrição', key='descricao')],
+            [sg.Text('Insira o Prazo de Entrega:'), sg.InputText('DD/MM/AAAA', key='prazo_entrega')],
+            
+            [sg.Text('Selecione a disciplina:'),
+             sg.Combo([''] + [disciplina for disciplina in nomes_disciplinas], key='disciplina')],
+
+            [sg.Text('Selecione o professor'),
+            sg.Combo([''] + [professor for professor in nomes_professores], key='professor')],
+
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+            ]
+        self.__window = sg.Window('Cadastro de Atividades', element_justification='c').Layout(layout)
+        botao, dados = self.open()
+        self.close()
+        self.init_components()
+        return botao, dados
+
     
     
     
