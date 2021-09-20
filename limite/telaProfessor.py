@@ -40,8 +40,8 @@ class TelaProfessor(AbstractTela):
             for key, value in professores.items():
                 layout.append([
                     [sg.Text('ID:'), sg.Text(key)],
-                    [sg.Text('Nome:'), sg.Text(str(value['nome']))],
-                    [sg.Text('Idade:'), sg.Text(str(value['idade']))],
+                    [sg.Text('Nome:'), sg.Text(value['nome'])],
+                    [sg.Text('Idade:'), sg.Text(value['idade'])],
                     [sg.Text('Disciplinas:')]
                 ])
                 if value['disciplinas'] == []:

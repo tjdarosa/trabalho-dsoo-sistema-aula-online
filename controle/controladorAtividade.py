@@ -1,11 +1,14 @@
 
 
+from entidades import disciplina
+from dao.atividadeDAO import AtividadeDAO
 from entidades.atividadeAluno import AtividadeAluno
 from entidades.atividade import Atividade
 from limite.telaAtividade import TelaAtividade
 from entidades.curso import Curso
 from entidades.aluno import Aluno
 from controle.abstractControlador import AbstractControlador
+from datetime import datetime
 
 
 class ControladorAtividade(AbstractControlador):
@@ -13,6 +16,7 @@ class ControladorAtividade(AbstractControlador):
         self.__controlador_sistema = controlador_sistema
         self.__atividades = []
         self.__tela_atividade = TelaAtividade()
+        self.__atividade_dao = AtividadeDAO()
 
     @property
     def tela_atividade(self) -> TelaAtividade:
@@ -22,9 +26,9 @@ class ControladorAtividade(AbstractControlador):
     def atividades(self) -> list:
         return self.__atividades
 
-    def pega_atividade_por_titulo(self, titulo: str):
-        for atividade in self.__atividades:
-            if atividade.titulo == titulo:
+    def pega_atividade_por_codigo(self, codigo: int):
+        for atividade in self.__atividade_dao.getAll():
+            if atividade.codigo == codigo:
                 return atividade
         return None
 
@@ -51,91 +55,203 @@ class ControladorAtividade(AbstractControlador):
         self.__controlador_sistema.abre_tela()
 
     def altera_atividade(self):
-        self.listar_atividades()
-        titulo = self.__tela_atividade.seleciona_atividade()
-        atividade = self.pega_atividade_por_titulo(titulo)
+        try:
+            disciplinas = []
+            for disc in self.__controlador_sistema.controlador_disciplina.disciplina_dao.getAll():
+                disciplinas.append({'nome': disc.nome, 'codigo': disc.codigo})
 
-        if atividade is not None:
-            novos_dados = self.__tela_atividade.pega_dados_atividade()
-            if novos_dados is None:
+            professores = []
+            for prof in self.__controlador_sistema.controlador_professor.professor_dao.getAll():
+                professores.append({'nome': prof.nome, 'id': prof.id})
+
+            botao, dados = self.__tela_atividade.seleciona_atividade_para_alterar()
+            if dados is not None and botao not in ('cancelar', None):
+            
+                atividade = self.pega_atividade_por_codigo(int(dados['codigo']))
+
+                if atividade is not None:
+                    botao, novos_dados = self.__tela_atividade.pega_novos_dados_atividade()
+                    if novos_dados is None:
+                        return None
+                    for key in novos_dados.keys():
+                        if novos_dados[key] == '':
+                            self.__tela_atividade.showMessage(
+                                'ERRO',
+                                "ATENÇÃO: É necessário preencher todos os campos!")
+                            return None
+
+                    codigo_repetido = False
+                    for ativ in self.__atividade_dao.getAll():
+                        if novos_dados['codigo'] == ativ.codigo and novos_dados['codigo'] != atividade.codigo:
+                            codigo_repetido = True
+                            self.__tela_atividade.showMessage(
+                                'ERRO',
+                                "ATENÇÃO: Este código já está sendo utilizado!")
+                            return None
+                    
+                    if codigo_repetido == False:
+                        id_position = dados['professor'].find('=')         
+                        cod_position = dados['disciplina'].find('=')
+                    
+                        professor_id = dados['professor'][id_position + 1:]
+                        disciplina_cod = dados['disciplina'][cod_position + 1:]
+
+                        professor = self.__controlador_sistema.controlador_professor.pega_professor_por_id(int(professor_id))
+                        disciplina = self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_codigo(disciplina_cod)
+                        dados['prazo_entrega'] = datetime.strptime(
+                            str(dados['prazo_entrega']), "%d/%m/%Y")
+
+                        atividade_alterada = Atividade(
+                            dados["titulo"],
+                            dados["descricao"],
+                            dados["prazo_entrega"],
+                            professor,
+                            atividade.atividades_aluno,
+                            disciplina,
+                            int(dados['codigo'])
+                            )
+
+                        self.__professor_dao.remove(atividade.codigo)
+                        self.__atividade_dao.add(atividade_alterada)
+                        self.__tela_atividade.showMessage(
+                                'SUCESSO',
+                                "Atividade alterada!")
+                else:
+                    self.__tela_atividade.showMessage(
+                        'ERRO',
+                        "ATENÇÃO: Atividade inexistente")
+            else: 
                 return None
-            self.__tela_atividade.showMessage("SELECIONE UM PROFESSOR:")
-            professor = self.pega_professor_pra_disciplina()
-            if(professor is None):
-                self.__tela_atividade.showMessage(
-                    "ATENÇÃO: Professor não identificado, não foi possível adicionar atividade")
-                return None
-            self.__tela_atividade.showMessage("SELECIONE UMA DISCIPLINA:")
-            disciplina = self.pega_disciplina_pra_atividade()
-            if(disciplina is None):
-                self.__tela_atividade.showMessage(
-                    "ATENÇÃO: Disciplina não identificada, não foi possível adicionar atividade")
-                return None
-            atividade.titulo = novos_dados["titulo"]
-            atividade.descricao = novos_dados["descricao"]
-            atividade.prazo = novos_dados["prazo"]
-            atividade.professor_responsavel = professor
-            atividade.disciplina = disciplina
-            self.listar_atividades()
-        else:
+        except ValueError:
             self.__tela_atividade.showMessage(
-                "ATENÇÃO: Atividade inexistente")
+                'ERRO',
+                "Um ou mais valores inseridos não estão corretos!")
+        except Exception:
+            self.__tela_atividade.showMessage(
+                'ERRO',
+                "Houve problema ao adicionar atividade!")
 
     def exclui_atividade(self):
-        self.listar_atividades()
-        titulo = self.__tela_atividade.seleciona_atividade()
-        atividade = self.pega_atividade_por_titulo(titulo)
-        if atividade is not None:
-            self.__atividades.remove(atividade)
-            self.listar_atividades()
-        else:
+        try:
+            botao, dados = self.__tela_atividade.seleciona_atividade_para_excluir()
+            if botao not in ('cancelar', None):
+                atividade = self.pega_atividade_por_codigo(int(dados['codigo']))
+                if atividade is not None:
+                    self.__atividade_dao.remove(int(atividade.codigo))
+                    self.__tela_atividade.showMessage(
+                        'SUCESSO',
+                        "Atividade excluída!")
+                else:
+                    self.__tela_atividade.showMessage(
+                        'ERRO',
+                        "ATENÇÃO: Atividade inexistente")
+            else:
+                return None
+        except ValueError:
             self.__tela_atividade.showMessage(
-                "ATENÇÃO: Atividade inexistente")
+                'ERRO',
+                "Um ou mais valores inseridos não estão corretos!")
+        except Exception:
+            self.__tela_atividade.showMessage(
+                'ERRO',
+                "Houve problema ao excluir atividade!")
 
     def inclui_atividade(self):
-        disciplinas = []
-        for disc in self.__controlador_sistema.controlador_disciplina.disciplina_dao.getAll():
-            disciplinas.append(disc.nome)
-        professores = []
-        for prof in self.__controlador_sistema.controlador_professor.professor_dao.getAll():
-            professores.append(prof.nome)
-        botao, dados = self.__tela_atividade.pega_dados_atividade(disciplinas, professores)
-        if dados is not None and botao not in ('cancelar', None):
-            
-            professor = self.pega_professor_pra_atividade()
-            if(professor is None):
-                self.__tela_atividade.showMessage(
-                    'ERRO',
-                    "ATENÇÃO: Professor não identificado, não foi possível adicionar atividade")
-                return None
-            disciplina = self.pega_disciplina_pra_atividade()
-            if(disciplina is None):
-                self.__tela_atividade.showMessage(
-                    "ATENÇÃO: Disciplina não identificada, não foi possível adicionar atividade")
-                return None
+        try:
+            disciplinas = []
+            for disc in self.__controlador_sistema.controlador_disciplina.disciplina_dao.getAll():
+                disciplinas.append({'nome': disc.nome, 'codigo': disc.codigo})
 
-        self.__atividades.append(
-            Atividade(dados["titulo"], dados["descricao"], dados["prazo"], professor, [], disciplina))
+            professores = []
+            for prof in self.__controlador_sistema.controlador_professor.professor_dao.getAll():
+                professores.append({'nome': prof.nome, 'id': prof.id})
+
+            botao, dados = self.__tela_atividade.pega_dados_atividade(disciplinas, professores)
+            
+            if dados is not None and botao not in ('cancelar', None):
+                
+                for key in dados.keys():
+                    if dados[key] == '':
+                        self.__tela_atividade.showMessage(
+                            'ERRO',
+                            "ATENÇÃO: É necessário preencher todos os campos!")
+                        return None
+
+                codigo_repetido = False
+                for atividade in self.__atividade_dao.getAll():
+                    if dados['codigo'] == atividade.codigo:
+                        codigo_repetido = True
+                        self.__tela_atividade.showMessage(
+                            'ERRO',
+                            "ATENÇÃO: Este código já está sendo utilizado!")
+                        return None
+
+                if codigo_repetido == False:
+                    id_position = dados['professor'].find('=')         
+                    cod_position = dados['disciplina'].find('=')
+                
+                    professor_id = dados['professor'][id_position + 1:]
+                    disciplina_cod = dados['disciplina'][cod_position + 1:]
+
+                    professor = self.__controlador_sistema.controlador_professor.pega_professor_por_id(int(professor_id))
+                    disciplina = self.__controlador_sistema.controlador_disciplina.pega_disciplina_por_codigo(disciplina_cod)
+                    dados['prazo_entrega'] = datetime.strptime(
+                        str(dados['prazo_entrega']), "%d/%m/%Y")
+
+                    nova_atividade = Atividade(
+                        dados["titulo"],
+                        dados["descricao"],
+                        dados["prazo_entrega"],
+                        professor,
+                        [],
+                        disciplina,
+                        int(dados['codigo'])
+                        )
+
+                    self.__atividade_dao.add(nova_atividade)
+                    self.__tela_atividade.showMessage(
+                            'SUCESSO',
+                            "Atividade cadastrada!")
+        except ValueError:
+            self.__tela_atividade.showMessage(
+                'ERRO',
+                "Um ou mais valores inseridos não estão corretos!")
+        except Exception:
+            self.__tela_atividade.showMessage(
+                'ERRO',
+                "Houve problema ao adicionar atividade!")
 
     def listar_atividades(self):
-        if len(self.__atividades) == 0:
-            self.__tela_atividade.showMessage("Nenhuma Atividade cadastrada")
-        else:
-            for atividade in self.__atividades:
-                atividades_aluno = []
-                for atividade_aluno in atividade.atividades_aluno:
-                    atividades_aluno.append(
-                        {"nome": atividade_aluno.aluno.nome,
-                         "data_que_foi_entregue": atividade_aluno.data_que_foi_entregue,
-                         "nota": atividade_aluno.nota,
-                         "status": atividade_aluno.status})
-                self.__tela_atividade.mostra_atividade(
-                    {"titulo": atividade.titulo,
-                     "descricao": atividade.descricao,
-                     "prazo": atividade.prazo,
-                     "professor_responsavel": atividade.professor_responsavel.nome,
-                     "disciplina": atividade.disciplina.nome,
-                     "atividades_aluno": atividades_aluno})
+        try:
+            if len(self.__atividade_dao.getAll()) == 0:
+                self.__tela_atividade.showMessage(
+                    'ERRO',
+                    "Nenhuma Atividade cadastrada")
+            else:
+                atividades = {}
+                for atividade in self.__atividade_dao.getAll():
+                    atividades_aluno = []
+
+                    for entrega in atividade.atividades_aluno:
+                        atividades_aluno.append(
+                            {"nome": entrega.aluno.nome,
+                            "data_que_foi_entregue": entrega.data_que_foi_entregue,
+                            "nota": entrega.nota,
+                            "status": entrega.status})
+
+                    atividades[atividade.codigo] = {
+                        'titulo': atividade.titulo,
+                        'descricao': atividade.descricao,
+                        'prazo_entrega': atividade.prazo,
+                        'professor': atividade.professor_responsavel.nome,
+                        'disciplina': atividade.disciplina.nome,
+                        'atividades_aluno': atividades_aluno
+                    }
+                self.__tela_atividade.mostra_atividades(atividades)
+        except Exception:
+            self.__tela_atividade.showMessage(
+                'ERRO',
+                "Houve um problema ao listar atividades!")
 
     def inclui_atividade_aluno(self):
         self.listar_atividades()

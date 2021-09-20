@@ -6,7 +6,7 @@ from dao.abstractDAO import AbstractDAO
 
 class AtividadeDAO(AbstractDAO):
     def __init__(self) -> None:
-        super().__init__("atividade.pkl")
+        super().__init__("atividades.pkl")
 
     def add(self, atividade: Atividade):
         if atividade is not None and isinstance(atividade, Atividade):
@@ -16,8 +16,8 @@ class AtividadeDAO(AbstractDAO):
         if isinstance(key, str):
             return super().get(key)
 
-    def remove(self, key: str):
-        if isinstance(key, str):
+    def remove(self, key: int):
+        if isinstance(key, int):
             return super().remove(key)
 
     def getAll(self):

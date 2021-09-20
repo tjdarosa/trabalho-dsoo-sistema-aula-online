@@ -34,10 +34,39 @@ class TelaAtividade(AbstractTela):
     def showMessage(self, titulo: str, mensagem: str):
         return super().showMessage(titulo, mensagem)
 
-    def mostra_atividades(self):
+    def mostra_atividades(self, atividades):
         layout = []
+        if atividades == {}:
+            layout.append(
+                [sg.Text('Não há atividades cadastradas!', size=(35,1), font=('Times', 20), justification='c')])
+        else:
+            for key, value in atividades.items():
+                layout.append([
+                    [sg.Text('Código:'), sg.Text(key)],
+                    [sg.Text('Título:'), sg.Text(value['titulo'])],
+                    [sg.Text('Descrição:'), sg.Text(value['descricao'])],
+                    [sg.Text('Prazo de entrega:'), sg.Text(value['prazo_entrega'])],
+                    [sg.Text('Professor responsável:'), sg.Text(value['professor'])],
+                    [sg.Text('Disciplina:'), sg.Text(value['disciplina'])]
+                ])
+                if len(value['atividades_aluno']) == 0:
+                    layout.append(
+                        [sg.Text('Nenhuma atividade entregue até o momento')]
+                    )
+                else:
+                    for atividade in value['atividades_aluno']:
+                        layout.append(
+                            [sg.Text('Aluno:'), sg.Text(atividade['nome'])],
+                            [sg.Text('Data de entrega:'), sg.Text(atividade['data_que_foi_entregue'])],
+                            [sg.Text('Nota:'), sg.Text(atividade['nota'])],
+                            [sg.Text('Status:')], sg.Text(str(atividade['status']))
+                        )
+            layout.append([sg.Text('')])
+        layout.append([sg.OK()])
+        self.__window = sg.Window('Lstagem de Atividades', element_justification='c').Layout(layout)
 
-    def pega_dados_atividade(self, nomes_disciplinas, nomes_professores):
+
+    def pega_dados_atividade(self, disciplinas, professores):
         layout = [
             [sg.Text('Insira o código:'), sg.InputText('Código', key='codigo')],
             [sg.Text('Insira o título:'), sg.InputText('Título', key='titulo')],
@@ -45,10 +74,14 @@ class TelaAtividade(AbstractTela):
             [sg.Text('Insira o Prazo de Entrega:'), sg.InputText('DD/MM/AAAA', key='prazo_entrega')],
             
             [sg.Text('Selecione a disciplina:'),
-             sg.Combo([''] + [disciplina for disciplina in nomes_disciplinas], key='disciplina')],
+             sg.Combo(
+                 [''] + ['{}, cod={}'.format(disciplina['nome'], disciplina['codigo']) for disciplina in disciplinas],
+                 key='disciplina')],
 
             [sg.Text('Selecione o professor'),
-            sg.Combo([''] + [professor for professor in nomes_professores], key='professor')],
+            sg.Combo(
+                [''] + ['{}, id={}'.format(professor['nome'], professor['id']) for professor in professores],
+                 key='professor')],
 
             [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
             ]
@@ -58,58 +91,73 @@ class TelaAtividade(AbstractTela):
         self.init_components()
         return botao, dados
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # def mostra_opcoes(self):
-    #     print("=========== CADASTROS DE ATIVIDADES ===========")
-    #     while True:
-    #         try:
-    #             print("Escolha a opção:")
-    #             print("1 - Listar Atividades")
-    #             print("2 - Adicionar Atividade")
-    #             print("3 - Alterar Atividade")
-    #             print("4 - Excluir Atividade")
-    #             print("5 - Adicionar Atividade de Aluno")
-    #             print("6 - Adicionar Entrega de Aluno a Atividade")
-    #             print("7 - Avaliar Atividade de Aluno")
+    def seleciona_atividade_para_excluir(self):
+        try:
+            layout = [
+            [sg.Text('Insira o código da atividade:'), sg.InputText('codigo (ex: 123)', key='codigo')],
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+            ]
+            self.__window = sg.Window('Exclusão de Cadastro de Atividades', element_justification='c').Layout(layout)
+            botao, dados = self.open()
+            self.close()
+            self.init_components()
+            return botao, dados
+        except Exception:
+            self.showMessage(
+                'ERRO',
+                'Houve um problema ao selecionar o professor!')
 
-    #             print("0 - Retornar")
+    def seleciona_atividade_para_alterar(self):
+        try:
+            layout = [
+            [sg.Text('Insira o código da atividade:'), sg.InputText('codigo (ex: 123)', key='codigo')],
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+            ]
+            self.__window = sg.Window('Alteração de Cadastro de Atividades', element_justification='c').Layout(layout)
+            botao, dados = self.open()
+            self.close()
+            self.init_components()
+            return botao, dados
+        except Exception:
+            self.showMessage(
+                'ERRO',
+                'Houve um problema ao selecionar o professor!')
 
-    #             opcao = int(input())
-    #             if opcao < 0 or opcao > 7:
-    #                 raise Exception()
-    #             return opcao
-    #         except TypeError:
-    #             print("Insira um número válido")
-    #             continue
-    #         except Exception:
-    #             print("Insira um número de 1 à 6")
-    #             continue
+    def pega_novos_dados_atividade(self, disciplinas, professores):
+        layout = [
+            [sg.Text('Insira o código:'), sg.InputText('Código', key='codigo')],
+            [sg.Text('Insira o título:'), sg.InputText('Título', key='titulo')],
+            [sg.Text('Insira a descrição:'), sg.InputText('Descrição', key='descricao')],
+            [sg.Text('Insira o Prazo de Entrega:'), sg.InputText('DD/MM/AAAA', key='prazo_entrega')],
+            
+            [sg.Text('Selecione a disciplina:'),
+             sg.Combo(
+                 [''] + ['{}, cod={}'.format(disciplina['nome'], disciplina['codigo']) for disciplina in disciplinas],
+                 key='disciplina')],
 
-    # def mostra_msg(self, msg: str) -> None:
-    #     print(msg)
+            [sg.Text('Selecione o professor'),
+            sg.Combo(
+                [''] + ['{}, id={}'.format(professor['nome'], professor['id']) for professor in professores],
+                 key='professor')],
 
-    # def pega_dados_atividade(self):
-    #     print("------------- DADOS ATIVIDADE -------------")
-    #     try:
-    #         titulo = str(input("Insira o título: "))
-    #         descricao = str(input("Insira a Descrição: "))
-    #         prazo = datetime.strptime(
-    #             str(input("Insira o Prazo de Entrega no formato dd/MM/yyyy: ")), "%d/%m/%Y")
-    #         return {"titulo": titulo, "descricao": descricao, "prazo": prazo}
-    #     except TypeError:
-    #         self.mostra_msg("Insira um valor válido!")
-    #     except Exception as err:
-    #         self.mostra_msg(
-    #             "Ocorreu um erro ao inserir informações, verifique novamente os dados inseridos")
+            [sg.Submit('Confirmar', key='confirmar'), sg.Cancel('Cancelar', key='cancelar')]
+            ]
+        self.__window = sg.Window('Cadastro de Atividades', element_justification='c').Layout(layout)
+        botao, dados = self.open()
+        self.close()
+        self.init_components()
+        return botao, dados
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
 
     # def pega_dados_atividade_aluno(self):
     #     try:
@@ -134,28 +182,6 @@ class TelaAtividade(AbstractTela):
     #     except Exception:
     #         self.mostra_msg("Ocorreu um erro ao inserir informações")
 
-    # def mostra_atividade(self, dados_atividade):
-    #     print("TITULO: ", dados_atividade["titulo"])
-    #     print("DESCRIÇÃO: ", dados_atividade["descricao"])
-    #     print("PRAZO ENTREGA: ", dados_atividade["prazo"])
-    #     print("PROFESSOR RESPONSÁVEL: ",
-    #           dados_atividade["professor_responsavel"])
-    #     print("DISCIPLINA: ", dados_atividade["disciplina"])
-    #     print("ENTREGAS: ")
-    #     if len(dados_atividade["atividades_aluno"]) > 0:
-    #         for atividade_aluno in dados_atividade["atividades_aluno"]:
-    #             print(" ALUNO: ", atividade_aluno["nome"])
-    #             print(" DATA DE ENTREGA: ",
-    #                   atividade_aluno["data_que_foi_entregue"])
-    #             print(" NOTA: ", atividade_aluno["nota"])
-    #             print(" STATUS: ", atividade_aluno["status"])
-    #     else:
-    #         print("Nenhuma atividade entregue até o momento")
-    #     print("\n")
+    
 
-    # def seleciona_atividade(self):
-    #     try:
-    #         nome = str(input("Titulo da Atividade que deseja selecionar: "))
-    #         return nome
-    #     except Exception:
-    #         self.mostra_msg('Houve um erro na inserção de informações!\n')
+    
