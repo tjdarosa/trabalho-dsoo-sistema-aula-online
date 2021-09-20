@@ -116,7 +116,7 @@ class ControladorDisciplina(AbstractControlador):
         try:
             if len(self.getAllDisciplinas()) == 0:
                 self.__tela_disciplina.showMessage(
-                    "Erro", "Nenhuma disciplina cadastrado! \n")
+                    "Erro", "Nenhuma disciplina cadastrada! \n")
                 # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
                 return -1
             button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
@@ -180,7 +180,7 @@ class ControladorDisciplina(AbstractControlador):
         try:
             if len(self.getAllDisciplinas()) == 0:
                 self.__tela_disciplina.showMessage(
-                    "Erro", "Nenhuma disciplina cadastrado! \n")
+                    "Erro", "Nenhuma disciplina cadastrada! \n")
                 # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
                 return -1
             button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
@@ -214,69 +214,110 @@ class ControladorDisciplina(AbstractControlador):
         self.__tela_disciplina.mostra_disciplinas(disciplinas)
 
     def inclui_aluno(self):
-        # Seleciona Disciplina
-        self.listar_disciplinas()
-        if len(self.__disciplinas) > 0:
-            nome = self.__tela_disciplina.seleciona_disciplina()
-            disciplina = self.pega_disciplina_por_nome(nome)
-            if(disciplina is None):
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Disciplina Inexistente")
-                return None
-            if len(disciplina.alunos) == disciplina.limite_alunos:
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Esta disciplina já atingiu seu limite de aluno máximo permitido ")
-                return None
-            # Seleciona Aluno
-            self.__controlador_sistema.controlador_aluno.listar_alunos()
-            matricula = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno()
+        try:
+            # Seleciona Disciplina
+            if len(self.getAllDisciplinas()) == 0:
+                self.__tela_disciplina.showMessage(
+                    "Erro", "Nenhuma disciplina cadastrada! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
+                self.cria_dicionario_disciplinas())
+
+            if button_selecionar == "Voltar":
+                return
+
+            # Pega a instancia da disciplina selecionado
+            disciplina_selecionada = None
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    disciplina_selecionada = self.pega_disciplina_por_codigo(
+                        key)
+
+            if int(disciplina_selecionada.limite_alunos) == len(disciplina_selecionada.alunos):
+                raise InputException(
+                    "Esta disciplina já atingiu o Limite de Alunos")
+
+            botao, novos_dados = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno_para_alterar()
+            if botao in ('cancelar', None):
+                return
             aluno = self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(
-                matricula)
-            if(aluno is None):
-                self.__tela_disciplina.mostra_msg("ATENÇÃO: Aluno Inexistente")
-                return None
-            if aluno in disciplina.alunos:
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Aluno já matriculado nesta disciplina")
-                return None
-            disciplina.alunos.append(aluno)
-            aluno.disciplinas.append(disciplina)
-            for curso in self.__controlador_sistema.controlador_curso.cursos:
-                if disciplina.nome in curso.disciplinas:
-                    aluno.curso = curso
-                    break
-        else:
-            return None
+                novos_dados['matricula'])
+
+            if aluno is None:
+                raise InputException(
+                    "Nenhum aluno encontrado com esta matrícula")
+
+            disciplina_selecionada.alunos.append(aluno)
+            self.__disciplina_dao.update(disciplina_selecionada)
+
+            # TODO: Validar inclusão do aluno em seu controlador
+            aluno.disciplinas.append(disciplina_selecionada)
+
+            self.__tela_disciplina.showMessage(
+                "Sucesso!", "Aluno matriculado a disciplina " + disciplina_selecionada.nome)
+
+        except InputException as e:
+            self.__tela_disciplina.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.inclui_disciplina()
+        except Exception as e:
+            print(e)
+            self.__tela_disciplina.showMessage(
+                "ERRO", "Ocorreu um erro ao alterar a Disciplina")
 
     def exclui_aluno(self):
-        # Seleciona Disciplina
-        self.listar_disciplinas()
-        nome = self.__tela_disciplina.seleciona_disciplina()
-        disciplina = self.pega_disciplina_por_nome(nome)
+        try:
+            # Seleciona Disciplina
+            if len(self.getAllDisciplinas()) == 0:
+                self.__tela_disciplina.showMessage(
+                    "Erro", "Nenhuma disciplina cadastrada! \n")
+                # return -1 é utilizado para evitar geração de relatórios caso não exsitam cursos cadastrados.
+                return -1
+            button_selecionar, values_selecionar = self.__tela_disciplina.seleciona_disciplina(
+                self.cria_dicionario_disciplinas())
 
-        if len(disciplina.alunos) > 0:
-            if(disciplina is None):
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Disciplina Inexistente!\n")
-                return None
-            # Seleciona Aluno
-            self.__controlador_sistema.controlador_aluno.listar_alunos()
-            matricula = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno()
+            if button_selecionar == "Voltar":
+                return
+
+            # Pega a instancia da disciplina selecionado
+            disciplina_selecionada = None
+            for key in values_selecionar:
+                if values_selecionar[key]:
+                    disciplina_selecionada = self.pega_disciplina_por_codigo(
+                        key)
+
+            if int(disciplina_selecionada.limite_alunos) == len(disciplina_selecionada.alunos):
+                raise InputException(
+                    "Esta disciplina já atingiu o Limite de Alunos")
+
+            botao, novos_dados = self.__controlador_sistema.controlador_aluno.tela_aluno.seleciona_aluno_para_alterar()
+            if botao in ('cancelar', None):
+                return
             aluno = self.__controlador_sistema.controlador_aluno.pega_aluno_por_matricula(
-                matricula)
-            if(aluno is None):
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Aluno Inexistente!\n")
-                return None
-            if aluno in disciplina.alunos:
-                disciplina.alunos.remove(aluno)
-                aluno.disciplinas.remove(disciplina)
-            else:
-                self.__tela_disciplina.mostra_msg(
-                    "ATENÇÃO: Aluno não está matriculado nesta disciplina!\n")
-        else:
-            self.__tela_disciplina.mostra_msg(
-                'Esta disciplina não possui alunos!\n')
+                novos_dados['matricula'])
+
+            if aluno is None:
+                raise InputException(
+                    "Nenhum aluno encontrado com esta matrícula")
+
+            disciplina_selecionada.alunos.remove(aluno)
+            self.__disciplina_dao.update(disciplina_selecionada)
+
+            # TODO: Validar inclusão do aluno em seu controlador
+            aluno.disciplinas.remove(disciplina_selecionada)
+
+            self.__tela_disciplina.showMessage(
+                "Sucesso!", "Aluno matriculado a disciplina " + disciplina_selecionada.nome)
+
+        except InputException as e:
+            self.__tela_disciplina.showMessage(
+                "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
+            self.inclui_disciplina()
+        except Exception as e:
+            print(e)
+            self.__tela_disciplina.showMessage(
+                "ERRO", "Ocorreu um erro ao alterar a Disciplina")
 
     def validar_formulario(self, button, values, isUpdate=False):
         disciplinas_existentes = []
