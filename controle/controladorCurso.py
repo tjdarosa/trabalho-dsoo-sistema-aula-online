@@ -1,5 +1,6 @@
 
 
+from exceptions.codigoRepetidoException import CodigoRepetidoException
 from dao.cursoDAO import CursoDAO
 from PySimpleGUI.PySimpleGUI import Input
 from exceptions.inputException import InputException
@@ -44,14 +45,14 @@ class ControladorCurso(AbstractControlador):
 
     def inclui_curso(self):
         try:
-            if len(self.__controlador_sistema._ControladorSistema__controlador_disciplina.disciplinas) == 0:
+            if len(self.__controlador_sistema.controlador_disciplina.getAllDisciplinas()) == 0:
                 self.__tela_curso.showMessage("ERRO",
                                               'Primeiro cadastre uma disciplina.')
                 return
 
             # Cria uma lista com as disciplinas em dicionário
             disciplinas = []
-            for disciplina in self.__controlador_sistema.controlador_disciplina.disciplinas:
+            for disciplina in self.__controlador_sistema.controlador_disciplina.getAllDisciplinas():
                 disciplinas.append(
                     {"codigo": disciplina.codigo, "nome": disciplina.nome})
             # seleciona nome do curso e as disciplinas que ele terá.
@@ -79,7 +80,10 @@ class ControladorCurso(AbstractControlador):
                 Curso(values['nome'], disciplinas_curso, values["codigo"]))
             self.__tela_curso.showMessage(
                 "Sucesso!", 'Curso cadastrado! \n')
-
+        except CodigoRepetidoException as e:
+            self.__tela_curso.showMessage(
+                "ERRO NA INSERÇÃO", str(e))
+            self.inclui_curso()
         except InputException as e:
             self.__tela_curso.showMessage(
                 "ERRO NA VALIDAÇÃO DO FORMULÁRIO", str(e))
@@ -198,7 +202,7 @@ class ControladorCurso(AbstractControlador):
         for curso in self.__curso_dao.getAll():
             cursos_existentes.append(curso.codigo)
         if values['codigo'] in cursos_existentes:
-            raise InputException("Já exsite um curso com este código")
+            raise CodigoRepetidoException()
         if values["codigo"] == "":
             raise InputException("O Campo Código é Necessário ")
         if values["nome"] == "":
