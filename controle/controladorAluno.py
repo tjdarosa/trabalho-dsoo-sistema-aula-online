@@ -1,5 +1,6 @@
 
 
+from dao.alunoDAO import AlunoDAO
 from entidades.curso import Curso
 from entidades.aluno import Aluno
 from limite.telaAluno import TelaAluno
@@ -11,6 +12,7 @@ class ControladorAluno(AbstractControlador):
     def __init__(self, controlador_sistema) -> None:
         self.__controlador_sistema = controlador_sistema
         self.__alunos = []
+        self.__aluno_dao = AlunoDAO()
         self.__tela_aluno = TelaAluno()
 
     @property
@@ -22,7 +24,7 @@ class ControladorAluno(AbstractControlador):
         return self.__alunos
 
     def pega_aluno_por_matricula(self, matricula: int):
-        for aluno in self.__alunos:
+        for aluno in self.__aluno_dao.getAll():
             if aluno.matricula == matricula:
                 return aluno
         return None
@@ -47,9 +49,10 @@ class ControladorAluno(AbstractControlador):
 
     def altera_aluno(self):
         try:
-            botao, novos_dados = self.__tela_aluno.seleciona_aluno_para_alterar()
+            botao, dados = self.__tela_aluno.seleciona_aluno_para_alterar()
             if botao not in ('cancelar', None):
-                aluno = self.pega_aluno_por_matricula(novos_dados['matricula'])
+                aluno = self.pega_aluno_por_matricula(int(dados['matricula']))
+                
                 if aluno is not None:
                     botao, novos_dados = self.__tela_aluno.pega_novos_dados_aluno()
                     if novos_dados is not None and botao not in ('cancelar', None):
@@ -61,8 +64,9 @@ class ControladorAluno(AbstractControlador):
                         else:
                             # verifica se a matricula já existe.
                             matricula_repetida = False
-                            if len(self.__alunos) > 0:
-                                for aluno in self.__alunos:
+                            if len(self.__aluno_dao.getAll()) > 0:
+                                todos_alunos = self.__aluno_dao.getAll()
+                                for aluno in todos_alunos:
                                     if novos_dados['matricula'] == aluno.matricula:
                                         self.__tela_aluno.showMessage(
                                             'ERRO',
@@ -70,10 +74,18 @@ class ControladorAluno(AbstractControlador):
                                         matricula_repetida = True
                                         break
 
-                            if not matricula_repetida:
-                                aluno.nome = novos_dados["nome"]
-                                aluno.matricula = novos_dados["matricula"]
-                                aluno.idade = novos_dados["idade"]
+                            if matricula_repetida == False:
+                                aluno_alterado = Aluno(
+                                    int(novos_dados['matricula']),
+                                    novos_dados['nome'],
+                                    int(novos_dados['idade']),
+                                    aluno.disciplinas,
+                                    aluno.curso)
+                                
+                                self.__aluno_dao.remove(aluno.matricula)
+                                self.__aluno_dao.add(
+                                    int(novos_dados['matricula']), aluno_alterado)
+                            
                                 self.__tela_aluno.showMessage(
                                     'SUCESSO',
                                     'Cadastro do aluno alterado!')
@@ -98,9 +110,9 @@ class ControladorAluno(AbstractControlador):
         try:
             botao, dados = self.__tela_aluno.seleciona_aluno_para_excluir()
             if botao not in ('cancelar', None):
-                aluno = self.pega_aluno_por_matricula(dados['matricula'])
+                aluno = self.pega_aluno_por_matricula(int(dados['matricula']))
                 if aluno is not None:
-                    self.__alunos.remove(aluno)
+                    self.__aluno_dao.remove(aluno.matricula)
                     self.__tela_aluno.showMessage(
                         'SUCESSO',
                         'Aluno de matrícula "{}" foi excluído!\n'.format(dados['matricula']))
@@ -128,9 +140,10 @@ class ControladorAluno(AbstractControlador):
                 else:
                     # verifica se a matricula já existe.
                     matricula_repetida = False
-                    if len(self.__alunos) > 0:
-                        for aluno in self.__alunos:
-                            if dados['matricula'] == aluno.matricula:
+                    if len(self.__aluno_dao.getAll()) > 0:
+                        todos_alunos = self.__aluno_dao.getAll()
+                        for aluno in todos_alunos:
+                            if int(dados['matricula']) == aluno.matricula:
                                 self.__tela_aluno.showMessage(
                                     'ERRO',
                                     'Esta matrícula já está sendo utilizada!')
@@ -138,8 +151,8 @@ class ControladorAluno(AbstractControlador):
                                 break
 
                     if not matricula_repetida:
-                        self.__alunos.append(
-                            Aluno(dados["matricula"], dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', [], 'codigo')))
+                        novo_aluno = Aluno(int(dados["matricula"]), dados["nome"], dados["idade"], [], Curso('Aluno não matriculado em nenhum curso', [], 'codigo'))
+                        self.__aluno_dao.add(int(dados["matricula"]), novo_aluno)
                         self.__tela_aluno.showMessage(
                             'SUCESSO',
                             'Aluno adicionado!')
@@ -157,13 +170,13 @@ class ControladorAluno(AbstractControlador):
 
     def listar_alunos(self):
         try:
-            if len(self.__alunos) == 0:
+            if len(self.__aluno_dao.getAll()) == 0:
                 self.__tela_aluno.showMessage(
                     'ERRO',
                     "Nenhum aluno cadastrado!")
             else:
                 alunos = {}
-                for aluno in self.__alunos:
+                for aluno in self.__aluno_dao.getAll():
                     disciplinas = []
                     for disciplina in aluno.disciplinas:
                         disciplinas.append(disciplina.nome)

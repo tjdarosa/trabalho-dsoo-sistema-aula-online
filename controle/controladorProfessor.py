@@ -10,13 +10,8 @@ from controle.abstractControlador import AbstractControlador
 class ControladorProfessor(AbstractControlador):
     def __init__(self, controlador_sistema) -> None:
         self.__controlador_sistema = controlador_sistema
-        self.__professores = {}
         self.__tela_professor = TelaProfessor()
         self.__professor_dao = ProfessorDAO()
-
-    @property
-    def professores(self) -> list:
-        return self.__professores
 
     @property
     def tela_professor(self) -> TelaProfessor:
@@ -77,14 +72,15 @@ class ControladorProfessor(AbstractControlador):
                                             'ERRO',
                                             'Este id já está sendo utilizado!')
                                         id_repetido = True
-
-                            professor_alterado = Professor(
-                                    novos_dados["nome"],
-                                    int(novos_dados["idade"]),
-                                    professor.disciplinas,
-                                    int(novos_dados["id"]))
-
+                            
                             if id_repetido == False:
+
+                                professor_alterado = Professor(
+                                        novos_dados["nome"],
+                                        int(novos_dados["idade"]),
+                                        professor.disciplinas,
+                                        int(novos_dados["id"]))
+                                        
                                 self.__professor_dao.remove(professor.id)
                                 self.__professor_dao.add(
                                     int(novos_dados['id']), professor_alterado)
@@ -160,6 +156,7 @@ class ControladorProfessor(AbstractControlador):
                                     'ERRO',
                                     'Este id já está sendo utilizado!')
                                 id_repetido = True
+                                break
 
                     if not id_repetido:
                         novo_professor = Professor(dados["nome"], int(dados["idade"]), [], int(dados["id"]))
@@ -204,4 +201,4 @@ class ControladorProfessor(AbstractControlador):
 
 
     def professores_len(self) -> int:
-        return len(self.__professores)
+        return len(self.__professor_dao.getAll())
