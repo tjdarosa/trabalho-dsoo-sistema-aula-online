@@ -5,13 +5,23 @@ from datetime import date as Date
 
 
 class Atividade:
-    def __init__(self, titulo: str, descricao: str, prazo: Date, professor_responsavel: Professor, atividades_aluno: list, disciplina: Disciplina) -> None:
+    def __init__(
+        self,
+        titulo: str,
+        descricao: str,
+        prazo: Date,
+        professor_responsavel: Professor,
+        atividades_aluno: list,
+        disciplina: Disciplina,
+        codigo: int) -> None:
+
         self.__titulo = titulo
         self.__descricao = descricao
         self.__prazo = prazo
         self.__professor_responsavel = professor_responsavel
         self.__atividades_aluno = atividades_aluno
         self.__disciplina = disciplina
+        self.__codigo = codigo
 
     @property
     def titulo(self) -> str:
@@ -60,3 +70,11 @@ class Atividade:
     @disciplina.setter
     def disciplina(self, disciplina: Disciplina) -> None:
         self.__disciplina = disciplina
+
+    @property
+    def codigo(self) -> str:
+        return self.__codigo
+
+    @codigo.setter
+    def codigo(self, codigo: str) -> None:
+        self.__codigo = codigo
