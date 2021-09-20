@@ -17,8 +17,12 @@ class ControladorDisciplina(AbstractControlador):
         self.__disciplina_dao = DisciplinaDAO()
 
     @property
-    def disciplinas(self) -> list:
+    def disciplinas(self):
         return self.__disciplinas
+
+    @property
+    def disciplina_dao(self):
+        return self.__disciplina_dao
 
     def tem_disciplinas(self):
         return len(self.__disciplina_dao.getAll()) > 0

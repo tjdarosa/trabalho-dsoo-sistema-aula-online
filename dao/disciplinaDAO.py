@@ -23,3 +23,6 @@ class DisciplinaDAO(AbstractDAO):
     def remove(self, key: int):
         if isinstance(key, int):
             return super().remove(str(key))
+
+    def getAll(self):
+        return super().getAll()
