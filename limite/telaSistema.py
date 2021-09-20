@@ -14,17 +14,17 @@ class TelaSistema(AbstractTela):
         # sg.ChangeLookAndFeel("Reddit")
         layout = [
             [sg.Text("Sistema de Gerenciamento de Aulas Online",
-                     size=(30, 1), font=('Times', 25))],
-            [sg.Button("1 - Gerar Relatórios",)],
-            [sg.Button("2 - Cadastro de Cursos")],
-            [sg.Button("3 - Cadastro de Disciplinas")],
-            [sg.Button("4 - Cadastro de Professores")],
-            [sg.Button("5 - Cadastro de Alunos")],
-            [sg.Button("6 - Cadastro de Atividades")],
-            [sg.Button("0 - Sair do Sistemas")],
+                     size=(35,1), font=('Times', 20), justification='c')],
+            [sg.Button("1 - Gerar Relatórios", size=30)],
+            [sg.Button("2 - Cadastro de Cursos", size=30)],
+            [sg.Button("3 - Cadastro de Disciplinas", size=30)],
+            [sg.Button("4 - Cadastro de Professores", size=30)],
+            [sg.Button("5 - Cadastro de Alunos", size=30)],
+            [sg.Button("6 - Cadastro de Atividades", size=30)],
+            [sg.Button("0 - Sair do Sistemas", size=30)]
         ]
         self.__window = sg.Window(
-            "Tela Inicial", default_element_size=(40, 1)).Layout(layout)
+            "Tela Inicial", default_element_size=(40, 1), element_justification='c').Layout(layout)
 
     def open(self):
         button, values = self.__window.Read()
