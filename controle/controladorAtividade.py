@@ -29,13 +29,23 @@ class ControladorAtividade(AbstractControlador):
         return None
 
     def abre_tela(self):
-        lista_opcoes = {0: self.retornar,
-                        1: self.listar_atividades,
-                        2: self.inclui_atividade,
-                        3: self.altera_atividade,
-                        4: self.exclui_atividade, 5: self.inclui_atividade_aluno, 6: self.entrega_atividade_aluno, 7: self.avalia_atividade_aluno}
-        while True:
-            lista_opcoes[self.__tela_atividade.mostra_opcoes()]()
+        try:
+            lista_opcoes = {0: self.retornar,
+                            1: self.listar_atividades,
+                            2: self.inclui_atividade,
+                            3: self.altera_atividade,
+                            4: self.exclui_atividade,
+                            5: self.inclui_atividade_aluno,
+                            6: self.entrega_atividade_aluno,
+                            7: self.avalia_atividade_aluno}
+            while True:
+                    botao, dados = self.__tela_atividade.open()
+                    self.__tela_atividade.close()
+                    lista_opcoes[botao]()
+        except KeyError:
+            # print(botao, dados)
+            self.__tela_atividade.init_components()
+            self.abre_tela()
 
     def retornar(self):
         self.__controlador_sistema.abre_tela()
